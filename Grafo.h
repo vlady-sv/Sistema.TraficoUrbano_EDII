@@ -99,7 +99,42 @@ public:
         }
     }
 
-//falta agregar imprimirMatriz apartir de la lista de adyacencia
+//imprimir matriz apartir de la lista de adyacencia
+    void imprimirMatriz() const {
+        //tambien se puede usar -1, 9999 o 1e9 para representar "infinito"
+        const float INF = 1e9; //se usa para decir no hay arista de un nodo a otro
+
+        vector<vector<float>> M(numVertices(), vector<float>(numVertices(), INF));
+
+        for(size_t i = 0; i < numVertices(); i++)
+            M[i][i] = 0;
+
+        //llenar matriz segun la lista
+        for(size_t u = 0; u < numVertices(); u++){
+            Arista* aristActual = adj[u];
+            while(aristActual){
+                M[u][aristActual->nodoDestino] = aristActual->peso;
+                aristActual = aristActual->sig;
+            }
+        }
+
+        cout << "\nMatriz de adyacencia:\n";
+
+        //encabezado para que se va bonito
+        cout << setw(8) << "";
+        for(size_t j = 0; j < numVertices(); j++)
+            cout << setw(8) << j;
+        cout << "\n";
+
+        for(size_t i = 0; i < numVertices(); i++){
+            cout << setw(3) << i << " | ";
+            for(size_t j = 0; j < numVertices(); j++){
+                if(M[i][j] == INF) cout << setw(8) << "INF";
+                else cout << setw(8) << M[i][j];
+            }
+            cout << "\n";
+        }
+    }
 };
 
 
