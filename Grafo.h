@@ -135,6 +135,53 @@ public:
             cout << "\n";
         }
     }
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+//algoritmo de Dijkstra para caminos minimos desde un nodo origen
+
+    void dijkstra(size_t origen, vector<float>& dist, vector<int>& parent) const {
+        const float INF = 1e9;
+        size_t n = numVertices();
+
+        dist.assign(n, INF);
+        parent.assign(n, -1);
+
+        if(origen >= n) return;
+
+        dist[origen] = 0;
+
+        // Min-heap: (distancia acumulada, nodo)
+        using P = pair<float, size_t>;
+        priority_queue<P, vector<P>, greater<P>> pq;
+
+        pq.push({0, origen});
+
+        while(!pq.empty()) {
+            auto [distU, u] = pq.top();
+            pq.pop();
+
+            //si este par esta "viejo", lo ignoramos
+            if(distU != dist[u])
+                continue;
+
+            //recorrer todas las aristas del nodo u
+            Arista* a = adj[u];
+            while(a) {
+                size_t v = a->nodoDestino;
+                float w = a->peso;
+
+                if(dist[u] + w < dist[v]) {
+                    dist[v] = dist[u] + w;
+                    parent[v] = (int)u;
+                    pq.push({dist[v], v});
+                }
+
+                a = a->sig; //avanzar en la lista enlazada
+            }
+        }
+    }
+
+//falta agregar la impresion usando el algoritmo
 };
 
 
