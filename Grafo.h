@@ -181,7 +181,38 @@ public:
         }
     }
 
-//falta agregar la impresion usando el algoritmo
+// imprimir el camino minimo desde origen hasta destino (bonito)
+    void imprimirCamino(size_t origen, size_t destino, const vector<int>& parent, const vector<float>& dist) const {
+        if(destino >= numVertices()) {
+            cout << "Destino fuera de rango.\n";
+            return;
+        }
+
+        if(dist[destino] == 1e9) {
+            cout << "No existe camino desde " << origen
+                << " hasta " << destino << ".\n";
+            return;
+        }
+
+        vector<size_t> camino;
+
+        // reconstruir desde destino hacia origen
+        for(int nodo = destino; nodo != -1; nodo = parent[nodo])
+            camino.push_back(nodo);
+
+        reverse(camino.begin(), camino.end());
+
+        cout << "\nCamino mínimo " 
+            << origen << " -> " << destino << ": ";
+
+        // imprimir bonito
+        for(size_t i = 0; i < camino.size(); i++){
+            cout << camino[i];
+            if(i + 1 < camino.size()) cout << " -> ";
+        }
+
+        cout << "\nCosto total: " << dist[destino] << "\n";
+    }
 };
 
 
