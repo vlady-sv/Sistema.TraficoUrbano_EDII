@@ -1,3 +1,6 @@
+#ifndef GRAFO_H
+#define GRAFO_H
+
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -5,6 +8,63 @@ struct Arista {
     int nodoDestino;
     float peso;
     Arista* sig;
+};
+
+class MinHeap {
+private:
+    struct HeapItem {
+        float dist;
+        size_t nodo;
+    };
+
+    HeapItem data[5000]; // suficiente para grafos medianos
+    int size = 0;
+
+    void siftUp(int i){
+        while(i > 0){
+            int p = (i-1)/2;
+            if(data[i].dist >= data[p].dist) break;
+            swap(data[i], data[p]);
+            i = p;
+        }
+    }
+
+    void siftDown(int i){
+        while(true){
+            int l = 2*i+1, r = 2*i+2;
+            int smallest = i;
+
+            if(l < size && data[l].dist < data[smallest].dist)
+                smallest = l;
+            if(r < size && data[r].dist < data[smallest].dist)
+                smallest = r;
+
+            if(smallest == i) break;
+
+            swap(data[i], data[smallest]);
+            i = smallest;
+        }
+    }
+
+public:
+    bool empty() const { return size == 0; }
+
+    void push(float dist, size_t nodo){
+        data[size] = {dist, nodo};
+        siftUp(size);
+        size++;
+    }
+
+    HeapItem pop(){
+        if(size == 0) return {1e9, (size_t)-1};
+
+        HeapItem minVal = data[0];
+        data[0] = data[size-1];
+        size--;
+        if(size > 0) siftDown(0);
+
+        return minVal;
+    }
 };
 
 class Grafo {
@@ -153,33 +213,31 @@ public:
 
         dist[origen] = 0;
 
-        // Min-heap: (distancia acumulada, nodo)
-        using P = pair<float, size_t>;
-        priority_queue<P, vector<P>, greater<P>> pq;
-
-        pq.push({0, origen});
-
+        // Min-heap: 
+        MinHeap pq;
+        pq.push(0, origen);
+    
         while(!pq.empty()) {
-            auto [distU, u] = pq.top();
-            pq.pop();
-
+            auto top = pq.pop();
+            float distU = top.dist;
+            size_t u = top.nodo;
+    
             //si este par esta "viejo", lo ignoramos
             if(distU != dist[u])
                 continue;
-
+    
             //recorrer todas las aristas del nodo u
             Arista* a = adj[u];
             while(a) {
                 size_t v = a->nodoDestino;
                 float w = a->peso;
-
+    
                 if(dist[u] + w < dist[v]) {
                     dist[v] = dist[u] + w;
                     parent[v] = (int)u;
-                    pq.push({dist[v], v});
+                    pq.push(dist[v], v);
                 }
-
-                a = a->sig; //avanzar en la lista enlazada
+                a = a->sig;
             }
         }
     }
@@ -218,4 +276,5 @@ public:
     }
 };
 
+#endif
 
