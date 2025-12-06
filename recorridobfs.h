@@ -1,15 +1,17 @@
+
 #ifndef RECORRIDO_BFS_H
 #define RECORRIDO_BFS_H
 
-#include "Grafo.h"
+void Grafo::BFS(size_t inicio){
+    size_t n = numVertices();
 
-void Grafo::BFS(int inicio) {
-    if (inicio < 0 || inicio >= n) {
-        cout << "Nodo invalido.\n";
+    if(inicio >= n){
+        cout << "Nodo inválido.\n";
         return;
     }
-    bool visitado[MAX] = { false };
-    int cola[MAX];
+
+    bool visitado[5000] = { false };   // tamaño suficientemente grande
+    size_t cola[5000];                 // cola manual
     int frente = 0, fin = 0;
 
     cola[fin++] = inicio;
@@ -17,15 +19,21 @@ void Grafo::BFS(int inicio) {
 
     cout << "\nRecorrido BFS desde " << inicio << ":\n";
 
-    while (frente < fin) {
-        int u = cola[frente++];  
+    while(frente < fin){
+        size_t u = cola[frente++];
         cout << u << " ";
 
-        for (int v = 0; v < n; v++) {
-            if (adj[u][v] == 1 && !visitado[v]) {
+        // recorrer lista enlazada de u
+        Arista* a = adj[u];
+        while(a){
+            size_t v = a->nodoDestino;
+
+            if(!visitado[v]){
                 visitado[v] = true;
                 cola[fin++] = v;
             }
+
+            a = a->sig;
         }
     }
 
@@ -33,4 +41,3 @@ void Grafo::BFS(int inicio) {
 }
 
 #endif
-
