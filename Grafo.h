@@ -47,6 +47,8 @@ private:
     }
 
 public:
+    void BFS(size_t inicio);
+
     bool empty() const { return size == 0; }
 
     void push(float dist, size_t nodo){
@@ -74,6 +76,8 @@ private:
     bool esDirigido;
 
 public:
+
+    
     Grafo(size_t n, bool dirigido = true) : adj(n, nullptr), nombres(n, ""), esDirigido(dirigido) {}
 
     size_t numVertices() const { return adj.size(); }
