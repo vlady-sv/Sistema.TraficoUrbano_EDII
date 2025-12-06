@@ -4,7 +4,7 @@ using namespace std;
 
 //variables globales
 Grafo grafo(100, true);
-HashVehiculos hash(101);
+HashVehiculos hash(100);
 
 void red_Nodos_Hash();
 void mostrar_Grafo();
@@ -93,8 +93,10 @@ void mostrar_Grafo(){
 
         switch(opc){
             case 1: 
+                grafo.imprimirMatriz(); break;
                 break;
             case 2: 
+                grafo.imprimirLista(); break;
                 break;
             case 0: cout << "\n\t Saliendo del programa....";
                 break;
@@ -119,10 +121,27 @@ void recorridos(){
 
         switch(opc){
             case 1: 
+                int origen, destino;
+                cout << "\nOrigen: "; cin >> origen;
+                cout << "Destino: "; cin >> destino;
+
+                vector<float> dist;
+                vector<int> parent;
+
+                grafo.dijkstra(origen, dist, parent);
+                grafo.imprimirCamino(origen, destino, parent, dist);
                 break;
             case 2: 
+                int inicio;
+                cout << "\nNodo inicial: ";
+                cin >> inicio;
+                grafo.BFS(inicio);
                 break;
             case 3: 
+                int inicio;
+                cout << "\nNodo inicial: ";
+                cin >> inicio;
+                grafo.DFS(inicio);
                 break;
             case 0: cout << "\n\t Saliendo del programa....";
                 break;
