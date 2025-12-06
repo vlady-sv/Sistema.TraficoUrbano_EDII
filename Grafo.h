@@ -281,4 +281,6 @@ public:
 };
 
 #endif
+#include "Recorrido_BFS.h"
+
 
