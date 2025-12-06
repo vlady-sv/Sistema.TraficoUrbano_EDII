@@ -1,5 +1,12 @@
 #include <iostream>
 #include <windows.h>
+
+#include "Grafo.h"
+#include "recorrido_DFS.h"
+#include "recorridobfs.h"
+#include "TablasHash.h"
+#include "leerCSV.h"
+
 using namespace std;
 
 //variables globales
@@ -65,12 +72,25 @@ void red_Nodos_Hash(){
             case 2: 
                 break;
             case 3: 
+                int id; string nombre;
+                cout << "ID del nodo: "; cin >> id;
+                cout << "Nombre: "; cin >> nombre;
+                grafo.altaNodo(id, nombre);
                 break;
             case 4: 
+                int u, v; float w;
+                cout << "Nodo origen: "; cin >> u;
+                cout << "Nodo destino: "; cin >> v;
+                cout << "Peso: "; cin >> w;
+                grafo.agregarArista(u, v, w);
                 break;
             case 5:
                 break;
             case 6:
+                int u, v;
+                cout << "Nodo origen: "; cin >> u;
+                cout << "Nodo destino: "; cin >> v;
+                grafo.eliminarArista(u, v);
                 break;
             case 0: break;
             default: cout << u8"\n\n\t Opción invalida.\n";
