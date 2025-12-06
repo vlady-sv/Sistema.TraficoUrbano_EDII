@@ -2,6 +2,10 @@
 #include <windows.h>
 using namespace std;
 
+//variables globales
+Grafo grafo(100, true);
+HashVehiculos hash(101);
+
 void red_Nodos_Hash();
 void mostrar_Grafo();
 void recorridos();
