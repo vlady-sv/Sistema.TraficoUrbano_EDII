@@ -1,6 +1,6 @@
 #ifndef GRAFO_H
 #define GRAFO_H
-
+#include "recorridobfs.h"
 #include <bits/stdc++.h>
 using namespace std;
 
@@ -69,7 +69,7 @@ public:
     }
 };
 
-class Grafo {
+class Grafo{
 private:
     vector<Arista*> adj;     // lista de adyacencia, considerando pesos
     vector<string> nombres;  // nombre de los nodos
@@ -281,6 +281,3 @@ public:
 };
 
 #endif
-#include "Recorrido_BFS.h"
-
-

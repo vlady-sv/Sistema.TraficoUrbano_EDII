@@ -1,5 +1,7 @@
 #include <iostream>
 #include <windows.h>
+#include "Grafo.h"
+#include "TablasHash.h"
 using namespace std;
 
 //variables globales
