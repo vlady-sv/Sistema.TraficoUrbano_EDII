@@ -151,7 +151,7 @@ void recorridos(){
                 int inicio;
                 cout << "\nNodo inicial: ";
                 cin >> inicio;
-                grafo.BFS(inicio);
+                //grafo.BFS(inicio);
                 break;
             case 3: 
                 int inicio;
