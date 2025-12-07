@@ -64,12 +64,44 @@ void red_Nodos_Hash(){
 
         switch(opc){
             case 1: 
+                string archivo;
+                //mostrar archivos existentes
+                cout << "\n\t Archivos de Redes de Nodos: ";
+                for(int i=1; i<cont; i++){
+                    if(i=1){
+                        cout << "\n\t [" << i << "] red.csv";
+                    }
+                    cout << "\n\t [" << i << "] red" << i << ".csv";
+                }
+                cout << u8"\n\t Escriba nombre del archivo CSV: ";
+                cin >> archivo;
+            
+                HashRed hashRed(100);
+                vector<Arista> aristas;
+                csvRed(archivo, hashRed, aristas);
+                //reiniciamos el grafo
+                grafo = Grafo(100, true);
+            
+                //insertamos los nodos en el grafo
+                for (size_t i = 0; i < 100; i++) {
+                    Nodo* n = hashRed.buscar(i);
+                    if (n != nullptr) {
+                        grafo.altaNodoConID(n->id, n->nombre);
+                    }
+                }
+                //insertamos las aristas
+                for (const auto& a : aristas) {
+                    grafo.agregarArista(a.origen, a.destino, a.peso);
+                }
+                cout << u8"\n\t Red cargada correctamente desde " << archivo << "\n";
                 break;
             case 2: 
                 break;
             case 3: 
                 string nombre;
-                cout << "Nombre: "; cin >> nombre;
+                cout << "Nombre: "; 
+                cin.ignore();
+                getline(cin, nombre);
                 grafo.altaNodo(nombre);
                 break;
             case 4: 
@@ -77,7 +109,12 @@ void red_Nodos_Hash(){
                 cout << "Nodo origen: "; cin >> u;
                 cout << "Nodo destino: "; cin >> v;
                 cout << "Peso: "; cin >> w;
-                grafo.agregarArista(u, v, w);
+                if (!grafo.existeNodo(u) || !grafo.existeNodo(v)){
+                    cout << u8"\n\t Error: uno o ambos nodos no existen.\n";
+                }else{
+                    grafo.agregarArista(u, v, w);
+                    cout << u8"\n\t Arista agregada correctamente.\n";
+                }
                 break;
             case 5:
                 size_t id;
@@ -94,7 +131,11 @@ void red_Nodos_Hash(){
                 int u, v;
                 cout << "Nodo origen: "; cin >> u;
                 cout << "Nodo destino: "; cin >> v;
-                grafo.eliminarArista(u, v);
+                if (grafo.eliminarArista(u, v)){
+                    cout << u8"Arista eliminada.\n";
+                }else{
+                    cout << u8"No existía esa arista.\n";
+                }    
                 break;
             case 0: break;
             default: cout << u8"\n\n\t Opción invalida.\n";
@@ -148,10 +189,12 @@ void recorridos(){
                 int origen, destino;
                 cout << "\nOrigen: "; cin >> origen;
                 cout << "Destino: "; cin >> destino;
-
+                if (!grafo.existeNodo(origen) || !grafo.existeNodo(destino)){
+                    cout << u8"Error: nodo(s) no existen.\n";
+                    break;
+                }
                 vector<float> dist;
                 vector<int> parent;
-
                 grafo.dijkstra(origen, dist, parent);
                 grafo.imprimirCamino(origen, destino, parent, dist);
                 break;
@@ -159,13 +202,24 @@ void recorridos(){
                 int inicio;
                 cout << "\nNodo inicial: ";
                 cin >> inicio;
-                //grafo.BFS(inicio);
+                if (!grafo.existeNodo(inicio)){
+                    cout << u8"Error: nodo no existe.\n";
+                }else{
+                    cout << u8"\nRecorrido BFS:\n"
+                    grafo.BFS(inicio);
+                }
                 break;
             case 3: 
                 int inicio;
                 cout << "\nNodo inicial: ";
                 cin >> inicio;
-                grafo.DFS(inicio);
+                if (!grafo.existeNodo(inicio)) {
+                    cout << u8"Error: nodo no existe.\n";
+                } else {
+                    cout << u8"\nRecorrido DFS:\n";
+                    grafo.DFS(inicio);
+                    cout << "\n";
+                }
                 break;
             case 0: cout << "\n\t Saliendo del programa....";
                 break;
