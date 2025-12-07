@@ -68,10 +68,9 @@ void red_Nodos_Hash(){
             case 2: 
                 break;
             case 3: 
-                int id; string nombre;
-                cout << "ID del nodo: "; cin >> id;
+                string nombre;
                 cout << "Nombre: "; cin >> nombre;
-                grafo.altaNodo(id, nombre);
+                grafo.altaNodo(nombre);
                 break;
             case 4: 
                 int u, v; float w;
@@ -81,6 +80,15 @@ void red_Nodos_Hash(){
                 grafo.agregarArista(u, v, w);
                 break;
             case 5:
+                size_t id;
+                cout << "ID del nodo a eliminar: ";
+                cin >> id;
+                if (!grafo.existeNodo(id)) {
+                    cout << "Error: nodo " << id << " no existe o ya fue eliminado.\n";
+                } else {
+                    grafo.eliminarNodo(id); 
+                    cout << "Nodo " << id << "eliminado correctamente.\n";
+                }
                 break;
             case 6:
                 int u, v;
