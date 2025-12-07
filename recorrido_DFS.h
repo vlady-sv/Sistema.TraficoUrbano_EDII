@@ -1,6 +1,5 @@
 #ifndef RECORRIDO_DFS_H
 #define RECORRIDO_DFS_H
-
 #include "Grafo.h"
 
 // DFS clásico usando recursividad.

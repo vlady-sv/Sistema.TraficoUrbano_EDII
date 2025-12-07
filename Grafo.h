@@ -1,10 +1,11 @@
 #ifndef GRAFO_H
 #define GRAFO_H
-#include "recorridobfs.h"
 #include <bits/stdc++.h>
+//#include "recorridobfs.h"
+//#include "recorrido_DFS.h"
 using namespace std;
 
-struct Arista {
+struct Arista{
     int nodoDestino;
     float peso;
     Arista* sig;
@@ -18,7 +19,7 @@ private:
     };
 
     HeapItem data[5000]; // suficiente para grafos medianos
-    int size = 0;
+    int tam = 0;
 
     void siftUp(int i){
         while(i > 0){
@@ -34,9 +35,9 @@ private:
             int l = 2*i+1, r = 2*i+2;
             int smallest = i;
 
-            if(l < size && data[l].dist < data[smallest].dist)
+            if(l < tam && data[l].dist < data[smallest].dist)
                 smallest = l;
-            if(r < size && data[r].dist < data[smallest].dist)
+            if(r < tam && data[r].dist < data[smallest].dist)
                 smallest = r;
 
             if(smallest == i) break;
@@ -49,26 +50,27 @@ private:
 public:
     void BFS(size_t inicio);
 
-    bool empty() const { return size == 0; }
+    bool empty() const { return tam == 0; }
 
     void push(float dist, size_t nodo){
-        data[size] = {dist, nodo};
-        siftUp(size);
-        size++;
+        data[tam] = {dist, nodo};
+        siftUp(tam);
+        tam++;
     }
 
     HeapItem pop(){
-        if(size == 0) return {1e9, (size_t)-1};
+        if(tam == 0) return {1e9, (size_t)-1};
 
         HeapItem minVal = data[0];
-        data[0] = data[size-1];
-        size--;
-        if(size > 0) siftDown(0);
+        data[0] = data[tam-1];
+        tam--;
+        if(tam > 0) siftDown(0);
 
         return minVal;
     }
 };
 
+/* CLASE GRAFO */
 class Grafo{
 private:
     vector<Arista*> adj;     // lista de adyacencia, considerando pesos
@@ -76,10 +78,8 @@ private:
     bool esDirigido;
 
 public:
-
-    
     Grafo(size_t n, bool dirigido = true) : adj(n, nullptr), nombres(n, ""), esDirigido(dirigido) {}
-
+    void DFS(int);
     size_t numVertices() const { return adj.size(); }
 
     //asignar nombre al nodo
@@ -110,7 +110,7 @@ public:
         Arista* aristAnterior = nullptr;
 
         while(aristActual){
-            if(aristActual->nodoDestino == (int)v){
+            if(aristActual-> == (int)v){
                 if(aristAnterior) aristAnterior->sig = aristActual->sig;
                 else adj[u] = aristActual->sig;
                 delete aristActual;
@@ -230,7 +230,7 @@ public:
             if(distU != dist[u])
                 continue;
     
-            //recorrer todas las aristas del nodo u
+            //recorrer todas las Arista del nodo u
             Arista* a = adj[u];
             while(a) {
                 size_t v = a->nodoDestino;

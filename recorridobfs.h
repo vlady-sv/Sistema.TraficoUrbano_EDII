@@ -2,6 +2,8 @@
 #ifndef RECORRIDO_BFS_H
 #define RECORRIDO_BFS_H
 
+#include "Grafo.h"
+
 void Grafo::BFS(size_t inicio){
     size_t n = numVertices();
 
