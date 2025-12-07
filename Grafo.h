@@ -1,16 +1,19 @@
+//Grafo dinamico
+//agregando recorridos para evitar multidependencia
 #ifndef GRAFO_H
 #define GRAFO_H
 #include <bits/stdc++.h>
-//#include "recorridobfs.h"
-//#include "recorrido_DFS.h"
 using namespace std;
 
-struct Arista{
+
+struct Arista {
     int nodoDestino;
     float peso;
     Arista* sig;
 };
 
+
+// Min-heap para Dijkstra
 class MinHeap {
 private:
     struct HeapItem {
@@ -18,8 +21,8 @@ private:
         size_t nodo;
     };
 
-    HeapItem data[5000]; // suficiente para grafos medianos
-    int tam = 0;
+    HeapItem data[5000];
+    int size = 0;
 
     void siftUp(int i){
         while(i > 0){
@@ -35,9 +38,9 @@ private:
             int l = 2*i+1, r = 2*i+2;
             int smallest = i;
 
-            if(l < tam && data[l].dist < data[smallest].dist)
+            if(l < size && data[l].dist < data[smallest].dist)
                 smallest = l;
-            if(r < tam && data[r].dist < data[smallest].dist)
+            if(r < size && data[r].dist < data[smallest].dist)
                 smallest = r;
 
             if(smallest == i) break;
@@ -48,235 +51,334 @@ private:
     }
 
 public:
-    void BFS(size_t inicio);
-
-    bool empty() const { return tam == 0; }
+    bool empty() const { return size == 0; }
 
     void push(float dist, size_t nodo){
-        data[tam] = {dist, nodo};
-        siftUp(tam);
-        tam++;
+        data[size] = {dist, nodo};
+        siftUp(size);
+        size++;
     }
 
     HeapItem pop(){
-        if(tam == 0) return {1e9, (size_t)-1};
+        if(size == 0) return {1e9, (size_t)-1};
 
         HeapItem minVal = data[0];
-        data[0] = data[tam-1];
-        tam--;
-        if(tam > 0) siftDown(0);
+        data[0] = data[size-1];
+        size--;
+        if(size > 0) siftDown(0);
 
         return minVal;
     }
 };
 
-/* CLASE GRAFO */
-class Grafo{
+//CLASE GRAFO
+class Grafo {
 private:
-    vector<Arista*> adj;     // lista de adyacencia, considerando pesos
-    vector<string> nombres;  // nombre de los nodos
+    vector<Arista*> adj;       // lista de adyacencia
+    vector<string> nombres;    // nombre de los nodos
+    vector<bool> activo;       // TRUE = nodo existe
     bool esDirigido;
 
 public:
-    Grafo(size_t n, bool dirigido = true) : adj(n, nullptr), nombres(n, ""), esDirigido(dirigido) {}
-    void DFS(int);
+
+    Grafo(size_t n, bool dirigido = true) : adj(n, nullptr), nombres(n, ""), activo(n, true), esDirigido(dirigido) {}
+
     size_t numVertices() const { return adj.size(); }
 
-    //asignar nombre al nodo
-    void altaNodo(size_t id, const string& nombre){
-        if(id < numVertices()) nombres[id] = nombre;
+    bool existeNodo(size_t id) const {
+        return id < adj.size() && activo[id];
     }
 
-    //agregarArista(u, v)
-    void agregarArista(size_t u, size_t v, float w){
-        if(u >= numVertices() || v >= numVertices()) return;
+    //crear nuevo nodo
+    void altaNodo(const string& nombre){
+        adj.push_back(nullptr);
+        nombres.push_back(nombre);
+        activo.push_back(true);
 
-        //insertar al inicio de la lista enlazada
+        cout << "Nodo creado con ID = " << adj.size()-1 << endl;
+    }
+
+    // asignar nombre al nodo (opcional para archivos)
+    void altaNodo(size_t id, const string& nombre){
+        if(existeNodo(id))
+            nombres[id] = nombre;
+    }
+
+    // eliminar nodo/baja
+    void eliminarNodo(size_t u){
+        if(!existeNodo(u)) return;
+
+        //borrar aristas salientes
+        Arista* a = adj[u];
+        while(a){
+            Arista* tmp = a;
+            a = a->sig;
+            delete tmp;
+        }
+        adj[u] = nullptr;
+
+        //borrar aristas entrantes
+        for(size_t i = 0; i < adj.size(); i++){
+            if(activo[i])
+                eliminarArista(i, u);
+        }
+        activo[u] = false;
+        nombres[u].clear();
+        cout << "Nodo " << u << " eliminado.\n";
+    }
+
+    // agregar arista
+    void agregarArista(size_t u, size_t v, float w){
+        if(!existeNodo(u) || !existeNodo(v)) return;
+
         Arista* nueva = new Arista{(int)v, w, adj[u]};
         adj[u] = nueva;
 
-        //si no es dirigido, agregar arista inversa
         if(!esDirigido){
             Arista* rev = new Arista{(int)u, w, adj[v]};
             adj[v] = rev;
         }
     }
 
-    //eliminarArista(u, v)
+    // eliminar arista (u, v)
     void eliminarArista(size_t u, size_t v){
-        if(u >= numVertices() || v >= numVertices()) return;
+        if(!existeNodo(u) || !existeNodo(v)) return;
 
-        Arista* aristActual = adj[u];
-        Arista* aristAnterior = nullptr;
+        Arista* a = adj[u];
+        Arista* prev = nullptr;
 
-        while(aristActual){
-            if(aristActual-> == (int)v){
-                if(aristAnterior) aristAnterior->sig = aristActual->sig;
-                else adj[u] = aristActual->sig;
-                delete aristActual;
+        while(a){
+            if(a->nodoDestino == (int)v){
+                if(prev) prev->sig = a->sig;
+                else adj[u] = a->sig;
+                delete a;
                 break;
             }
-            aristAnterior = aristActual;
-            aristActual = aristActual->sig;
+            prev = a;
+            a = a->sig;
         }
 
-        // si es no dirigido, eliminar la arista inversa
         if(!esDirigido){
-            aristActual = adj[v];
-            aristAnterior = nullptr;
-
-            while(aristActual){
-                if(aristActual->nodoDestino == (int)u){
-                    if(aristAnterior) aristAnterior->sig = aristActual->sig;
-                    else adj[v] = aristActual->sig;
-                    delete aristActual;
+            a = adj[v];
+            prev = nullptr;
+            while(a){
+                if(a->nodoDestino == (int)u){
+                    if(prev) prev->sig = a->sig;
+                    else adj[v] = a->sig;
+                    delete a;
                     break;
                 }
-                aristAnterior = aristActual;
-                aristActual = aristActual->sig;
+                prev = a;
+                a = a->sig;
             }
         }
     }
 
-    //verificar si existe arista u->v
+    // verificar si existe arista u->v
     bool existeArista(size_t u, size_t v) const {
-        if(u >= numVertices() || v >= numVertices()) return false;
+        if(!existeNodo(u) || !existeNodo(v)) return false;
 
-        Arista* aristActual = adj[u];
-        while(aristActual){
-            if(aristActual->nodoDestino == (int)v)
+        Arista* a = adj[u];
+        while(a){
+            if(a->nodoDestino == (int)v)
                 return true;
-            aristActual = aristActual->sig;
+            a = a->sig;
         }
         return false;
     }
 
-    //imprimir lista de adyacencia
+
+    // imprimir lista de adyacencia   
     void imprimirLista() const {
-        cout << "\nLista de adyacencia (" << (esDirigido ? "dirigido" : "no dirigido") << ")\n";
+        cout << "\nLista de adyacencia\n";
 
         for(size_t u = 0; u < numVertices(); u++){
+            if(!activo[u]) continue;
+
             cout << u << " [" << nombres[u] << "] : ";
-            Arista* aristActual = adj[u];
-            while(aristActual){
-                cout << "(" << aristActual->nodoDestino << ", peso=" << aristActual->peso << ") ";
-                aristActual = aristActual->sig;
+
+            Arista* a = adj[u];
+            while(a){
+                if(activo[a->nodoDestino])
+                    cout << "(" << a->nodoDestino << ", peso=" << a->peso << ") ";
+                a = a->sig;
             }
             cout << "\n";
         }
     }
 
-//imprimir matriz apartir de la lista de adyacencia
+ 
+    //imprimir matriz de adyacencia           
     void imprimirMatriz() const {
-        //tambien se puede usar -1, 9999 o 1e9 para representar "infinito"
-        const float INF = 1e9; //se usa para decir no hay arista de un nodo a otro
-
-        vector<vector<float>> M(numVertices(), vector<float>(numVertices(), INF));
-
-        for(size_t i = 0; i < numVertices(); i++)
-            M[i][i] = 0;
-
-        //llenar matriz segun la lista
-        for(size_t u = 0; u < numVertices(); u++){
-            Arista* aristActual = adj[u];
-            while(aristActual){
-                M[u][aristActual->nodoDestino] = aristActual->peso;
-                aristActual = aristActual->sig;
-            }
-        }
+        const float INF = 1e9;
 
         cout << "\nMatriz de adyacencia:\n";
 
-        //encabezado para que se va bonito
         cout << setw(8) << "";
-        for(size_t j = 0; j < numVertices(); j++)
-            cout << setw(8) << j;
+        for(size_t j = 0; j < numVertices(); j++){
+            if(activo[j]) cout << setw(8) << j;
+        }
         cout << "\n";
 
         for(size_t i = 0; i < numVertices(); i++){
+            if(!activo[i]) continue;
+
             cout << setw(3) << i << " | ";
+
             for(size_t j = 0; j < numVertices(); j++){
-                if(M[i][j] == INF) cout << setw(8) << "INF";
-                else cout << setw(8) << M[i][j];
+                if(!activo[j]) continue;
+
+                float val = INF;
+
+                Arista* a = adj[i];
+                while(a){
+                    if(a->nodoDestino == (int)j){
+                        val = a->peso;
+                        break;
+                    }
+                    a = a->sig;
+                }
+
+                if(i == j) val = 0;
+
+                if(val == INF) cout << setw(8) << "INF";
+                else cout << setw(8) << val;
             }
             cout << "\n";
         }
     }
 
-//----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-//algoritmo de Dijkstra para caminos minimos desde un nodo origen
 
+    //algoritmo de Dijkstra para caminos minimos desde un nodo origen        
     void dijkstra(size_t origen, vector<float>& dist, vector<int>& parent) const {
+
         const float INF = 1e9;
         size_t n = numVertices();
 
         dist.assign(n, INF);
         parent.assign(n, -1);
 
-        if(origen >= n) return;
+        if(!existeNodo(origen)) return;
 
         dist[origen] = 0;
 
-        // Min-heap: 
         MinHeap pq;
         pq.push(0, origen);
-    
-        while(!pq.empty()) {
-            auto top = pq.pop();
-            float distU = top.dist;
-            size_t u = top.nodo;
-    
-            //si este par esta "viejo", lo ignoramos
-            if(distU != dist[u])
-                continue;
-    
-            //recorrer todas las Arista del nodo u
+
+        while(!pq.empty()){
+            auto t = pq.pop();
+            float distU = t.dist;
+            size_t u = t.nodo;
+
+            if(!activo[u]) continue;
+
+            if(distU != dist[u]) continue;
+
             Arista* a = adj[u];
-            while(a) {
+            while(a){
                 size_t v = a->nodoDestino;
                 float w = a->peso;
-    
-                if(dist[u] + w < dist[v]) {
+
+                if(activo[v] && dist[u] + w < dist[v]){
                     dist[v] = dist[u] + w;
-                    parent[v] = (int)u;
+                    parent[v] = u;
                     pq.push(dist[v], v);
                 }
                 a = a->sig;
             }
         }
     }
+    
+    //imprimir camino (bonito)
+    void imprimirCamino(size_t origen, size_t destino, const vector<int>& parent,const vector<float>& dist) const {
 
-// imprimir el camino minimo desde origen hasta destino (bonito)
-    void imprimirCamino(size_t origen, size_t destino, const vector<int>& parent, const vector<float>& dist) const {
-        if(destino >= numVertices()) {
-            cout << "Destino fuera de rango.\n";
+        if(destino >= numVertices() || !activo[destino]){
+            cout << "Destino inválido.\n";
             return;
         }
 
-        if(dist[destino] == 1e9) {
-            cout << "No existe camino desde " << origen
-                << " hasta " << destino << ".\n";
+        if(dist[destino] == 1e9){
+            cout << "No existe camino.\n";
             return;
         }
 
         vector<size_t> camino;
-
-        // reconstruir desde destino hacia origen
-        for(int nodo = destino; nodo != -1; nodo = parent[nodo])
-            camino.push_back(nodo);
+        for(int u = destino; u != -1; u = parent[u])
+            camino.push_back(u);
 
         reverse(camino.begin(), camino.end());
 
-        cout << "\nCamino mínimo " 
-            << origen << " -> " << destino << ": ";
+        cout << "\nCamino mínimo " << origen
+             << " -> " << destino << ": ";
 
-        // imprimir bonito
         for(size_t i = 0; i < camino.size(); i++){
             cout << camino[i];
             if(i + 1 < camino.size()) cout << " -> ";
         }
 
         cout << "\nCosto total: " << dist[destino] << "\n";
+    }
+
+    // Recorrido DFS
+    void DFS(size_t inicio) const {
+        if (!existeNodo(inicio)) {
+            cout << "Nodo " << inicio << " no existe o fue eliminado.\n";
+            return;
+        }
+
+        vector<bool> visitado(numVertices(), false);
+        cout << "\nRecorrido DFS desde " << inicio << " (" << nombres[inicio] << "):\n";
+
+        function<void(size_t)> dfsRec = [&](size_t u) {
+            visitado[u] = true;
+            cout << u << " (" << nombres[u] << ") ";
+
+            for (Arista* a = adj[u]; a; a = a->sig) {
+                size_t v = a->nodoDestino;
+                if (existeNodo(v) && !visitado[v]) {
+                    dfsRec(v);
+                }
+            }
+        };
+
+        dfsRec(inicio);
+        cout << "\n";
+    }
+
+    // Recorrido BFS 
+    void BFS(size_t inicio) const {
+        if (!existeNodo(inicio)) {
+            cout << "Nodo " << inicio << " no existe o fue eliminado.\n";
+            return;
+        }
+
+        const int MAXN = 5000; 
+        static bool visitado[MAXN] = {false};
+        static size_t cola[MAXN];
+        int frente = 0, fin = 0;
+
+        // Inicializar visitado
+        for (size_t i = 0; i < numVertices(); ++i)
+            visitado[i] = false;
+
+        cola[fin++] = inicio;
+        visitado[inicio] = true;
+
+        cout << "\nRecorrido BFS desde " << inicio << " (" << nombres[inicio] << "):\n";
+
+        while (frente < fin) {
+            size_t u = cola[frente++];
+            cout << u << " (" << nombres[u] << ") ";
+
+            for (Arista* a = adj[u]; a; a = a->sig) {
+                size_t v = a->nodoDestino;
+                if (existeNodo(v) && !visitado[v]) {
+                    visitado[v] = true;
+                    cola[fin++] = v;
+                }
+            }
+        }
+        cout << "\n";
     }
 };
 
