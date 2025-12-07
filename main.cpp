@@ -68,7 +68,7 @@ void red_Nodos_Hash(){
                 //mostrar archivos existentes
                 cout << "\n\t Archivos de Redes de Nodos: ";
                 for(int i=1; i<cont; i++){
-                    if(i=1){
+                    if(i==1){
                         cout << "\n\t [" << i << "] red.csv";
                     }
                     cout << "\n\t [" << i << "] red" << i << ".csv";
@@ -86,7 +86,7 @@ void red_Nodos_Hash(){
                 for (size_t i = 0; i < 100; i++) {
                     Nodo* n = hashRed.buscar(i);
                     if (n != nullptr) {
-                        grafo.altaNodoConID(n->id, n->nombre);
+                        grafo.altaNodo(n->id, n->nombre);
                     }
                 }
                 //insertamos las aristas
