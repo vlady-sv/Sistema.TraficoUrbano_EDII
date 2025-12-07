@@ -18,13 +18,16 @@ bool verificarValor(int cont, int opc){
 
 /* OPCIONES PARA RED */
 bool crearNuevaRed(){
+    SetConsoleOutputCP(CP_UTF8);
     if(!verificarCRed) return false;
+    HashRed nNodos;
     int cont = contRed();
     string nomArchivo = "red" + to_string(cont) + ".csv";
 
     fstream red;
     red.open(nomArchivo);
 
+    cout << u8"\n\t Dame el número de Nodos: ";
 }
 
 bool modificarRed(){
