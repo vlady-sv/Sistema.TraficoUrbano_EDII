@@ -25,7 +25,7 @@ bool verificarCRed(){ //Verificacion de existencia del archivo contador de archi
     return true;
 }
 
-int contRed(){ //Leemos en que numero de archivo vamos y aumentamos el contador
+int contRed(bool aumentar){ //Leemos en que numero de archivo en que vamos y aumentamos el contador
     fstream cRed;
     int cont = 0;
     cRed.open("ContRed.dat", ios::binary|ios::in|ios::out);
@@ -41,10 +41,12 @@ int contRed(){ //Leemos en que numero de archivo vamos y aumentamos el contador
         cont = 0;
     }
 
-    cont++;
-    cRed.seekp(0, ios::end);
-    cRed.write(reinterpret_cast<char*>(&cont), sizeof(int));
-    cRed.close();
+    if(aumentar){
+        cont++;
+        cRed.seekp(0, ios::end);
+        cRed.write(reinterpret_cast<char*>(&cont), sizeof(int));
+        cRed.close();
+    }
 
     return cont;
 }

@@ -63,6 +63,18 @@ class HashRed{
             }
         }
 
+        vector<Nodo> getNodos()const{
+            vector<Nodo> nodos;
+
+            for(const auto& bucket: tabla){
+                for(const auto& nodo: bucket){
+                    nodos.push_back(nodo);
+                }
+            }
+
+            return nodos;
+        }
+
 };
 
 /* MANEJO DE TABLA HASH DE VEHICULOS */
