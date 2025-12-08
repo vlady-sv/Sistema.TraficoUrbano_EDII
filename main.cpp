@@ -7,8 +7,8 @@
 using namespace std;
 
 //variables globales
-Grafo grafo(100, true);
-HashVehiculos hash(100);
+Grafo grafo(10, true);
+HashVehiculos hash(10);
 
 void iniciarPorDefecto(const string, HashRed&, vector<Arista>&, Grafo&);
 void red_Nodos_Hash(HashRed&, vector<Arista>&, Grafo&);
@@ -335,6 +335,8 @@ void recorridos(Grafo& grafo){
                 clock_t fin = clock();
                 double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
                 cout << "\n\t Tiempo de ejecución de Dijkstra: "<< tiempo << " segundos\n";
+                //imprimir camino
+                grafo.imprimirCamino(origen, destino, parent, dist);
                 }
                 break;
             case 2:{
