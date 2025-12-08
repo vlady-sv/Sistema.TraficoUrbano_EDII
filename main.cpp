@@ -181,15 +181,57 @@ void redGrafo(){
 
         switch(opc){
             case 1:{
+                string nombre;
+                cout << u8"Nombre del nodo: ";
+                cin.ignore();
+                getline(cin, nombre);
+                size_t id = grafo.altaNodo(nombre);
+                cout << u8"\n\t Nodo creado con ID: " << id << "\n";
                 }
                 break;
             case 2:{
+                int u, v; float w;
+                cout << u8"Nodo origen (ID): "; cin >> u;
+                cout << u8"Nodo destino (ID): "; cin >> v;
+                cout << u8"Peso/Distancia: "; cin >> w;
+                if (!grafo.existeNodo(u) || !grafo.existeNodo(v)){
+                    cout << u8"\n\t Error: uno o ambos nodos no existen.\n";
+                }else if (u == v){
+                    cout << u8"\n\t Error: No se permiten bucles (u → u).\n";
+                }else if (grafo.existeAristas(u, v)){
+                    cout << u8"\n\t Ya existe una arista de " << u << " a " << v << "\n";
+                    char resp;
+                    cout << u8"\t ¿Reemplazar peso? (s/n): "; cin >> resp;
+                    if (resp != 's' && resp != 'S') break;
+                    grafo.eliminarAristas(u, v);  //borra la antigua
+                }
+                grafo.agregarAristas(u, v, w);
+                cout << u8"\n\t Arista " << u << " -> " << v << " agregada con peso " << w << "\n";
                 }
                 break;
             case 3:{
+                size_t id;
+                cout << u8"\n\t ID del nodo a eliminar: ";
+                cin >> id;
+            
+                if (!grafo.existeNodo(id)){
+                    cout << u8"\n\t Error: El nodo " << id << " no existe o ya fue eliminado.\n";
+                }else{
+                    grafo.eliminarNodo(id);
+                    cout << u8"\t Nodo " << id << " y todas sus aristas eliminadas correctamente.\n";
                 }   
                 break;
             case 4:{
+                int u, v;
+                cout << u8"Nodo origen: "; 
+                cin >> u;
+                cout << u8"Nodo destino: "; 
+                cin >> v;
+                if (!grafo.existeAristas(u, v)){
+                    cout << u8"\n\t No existe arista de " << u << " -> " << v << "\n";
+                }else{
+                    grafo.eliminarAristas(u, v);
+                    cout << u8"\t Arista " << u << " -> " << v << " eliminada correctamente.\n";
                 }
                 break;
             case 0: cout << u8"\n\t Regresando al menú principal...\n\n";
