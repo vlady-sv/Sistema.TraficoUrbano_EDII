@@ -2,7 +2,12 @@
 //agregando recorridos para evitar multidependencia
 #ifndef GRAFO_H
 #define GRAFO_H
-#include <bits/stdc++.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <iomanip>
+#include <algorithm>
+#include <functional>
 using namespace std;
 
 

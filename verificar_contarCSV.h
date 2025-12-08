@@ -1,5 +1,6 @@
-#include <iostream>
-#include <fstream>
+#ifndef VER_CONT_H
+#define VER_CONT_H
+#include "leerCSV.h"
 using namespace std;
 
 //////// Lógica para el conteo de los archivos .csv ////////////////////
@@ -83,7 +84,7 @@ int contVehiculos(bool aumentar){
     }
 
     cVehiculos.seekg(-sizeof(int), ios::end);
-    if(!cVehiculos.read(reinterpret_cast<char*>(&cont), sizeof(int))){
+    if(!(cVehiculos.read(reinterpret_cast<char*>(&cont), sizeof(int)))){
         cVehiculos.clear();
         cont = 0;
     }
@@ -97,3 +98,4 @@ int contVehiculos(bool aumentar){
 
     return cont;
 }
+#endif

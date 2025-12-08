@@ -1,6 +1,6 @@
-#include <iostream>
+#ifndef LEERCSV_H
+#define LEERCSV_H
 #include <fstream>
-#include <vector>
 #include <sstream>
 #include "TablasHash.h"
 using namespace std;
@@ -25,7 +25,7 @@ void csvRed(const string& archivo, HashRed& hashRed, vector<Arista>& aristas){
         if(tipo == "N"){
             string stringId, nombre;
             getline(ss, stringId, ';');
-            getline(ss, nombre, ';');
+            getline(ss, nombre);
 
             int id = stoi(stringId);
             hashRed.insertar(Nodo(id, nombre));
@@ -34,12 +34,12 @@ void csvRed(const string& archivo, HashRed& hashRed, vector<Arista>& aristas){
 
             getline(ss, sOrigen, ';');
             getline(ss, sDestino, ';');
-            getline(ss, sPeso, ';');
+            getline(ss, sPeso);
 
             Arista a;
             a.origen = stoi(sOrigen);
             a.destino = stoi(sDestino);
-            a.peso = stoi(sPeso);
+            a.peso = stof(sPeso);
 
             aristas.push_back(a);
         }
@@ -61,16 +61,10 @@ void csvVehiculos(const string& archivo, HashVehiculos& hashVe, vector<Vehiculo>
         if(linea[0] == '#') continue;
 
         stringstream ss(linea);
-        string tipo;
-        getline(ss, tipo, ';'); // Saca la V del principio para que no errores
+        string tipoRegistro;
+        getline(ss, tipoRegistro, ';'); // Saca la V del principio para que no errores
 
-        string stringId, stringPlaca, stringTipoV, stringOrigen, stringDestino, stringHoraEntrada;
-        getline(ss, stringId, ';');
-        getline(ss, stringPlaca, ';');
-        getline(ss, stringTipoV, ';');
-        getline(ss, stringOrigen, ';');
-        getline(ss, stringDestino, ';');
-        getline(ss, stringHoraEntrada, ';');
+        if(tipoRegistro != "V") continue;
 
         string sId, sPlaca, sTipo, sOrigen, sDestino, sHoraEnt;
 
@@ -79,15 +73,17 @@ void csvVehiculos(const string& archivo, HashVehiculos& hashVe, vector<Vehiculo>
             getline(ss, sTipo, ';');
             getline(ss, sOrigen, ';');
             getline(ss, sDestino, ';');
-            getline(ss, sHoraEnt, ';');
+            getline(ss, sHoraEnt);
 
             Vehiculo v;
             v.id = stoi(sId);
-            v.placa = stoi(sPlaca);
-            v.tipo = stoi(sTipo);
+            v.placa = sPlaca;
+            v.tipo = sTipo;
             v.origen = stoi(sOrigen);
             v.destino = stoi(sDestino);
-            v.horaEntrada = stoi(sHoraEnt);
+            v.horaEntrada = sHoraEnt;
+            vehiculos.push_back(v);
             hashVe.insertar(Vehiculo(v));
     }
 }
+#endif

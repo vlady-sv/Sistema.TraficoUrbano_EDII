@@ -1,11 +1,9 @@
 #ifndef MAIN
 #define MAIN
+#include <windows.h>
 #include <ctime>
 #include "Grafo.h"
 #include "modificarCSV.h"
-#include <windows.h>
-
-
 using namespace std;
 
 //variables globales
@@ -19,8 +17,8 @@ void redGrafo(Grafo&);
 void mostrar_Grafo(Grafo&);
 void recorridos(Grafo&);
 void vehiculos();
-void nombreArchivo(string&, bool&, const string);
-void nombreArchivoVehiculos(string&, bool&, const string);
+void nombreArchivoRed(string&, bool&, const string);
+void nombreArchivoVehiculos(string&);
 
 int main(){
     SetConsoleOutputCP(CP_UTF8);
@@ -94,7 +92,6 @@ void red_Nodos_Hash(HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo){
             case 1:{ 
                 string archivo;
                 bool saveAs;
-                int cont;
                 nombreArchivoRed(archivo, saveAs, "cargar");
             
                 hashRed = HashRed(100);
@@ -145,7 +142,7 @@ void redArchivo(){
         cout << "\n\t [3] Alta de Aristas.";
         cout << "\n\t [4] Baja de Nodos.";
         cout << "\n\t [5] Baja de Aristas.";
-        cout << u8"\n\t [0] Volver al menú principal.";
+        cout << u8"\n\t [0] Volver al menú anterior.";
         cout << u8"\n\n\t Elige una opción: ";
         cin >> opc;
 
@@ -201,7 +198,7 @@ void redGrafo(Grafo& grafo){
         cout << "\n\t [2] Alta de Aristas.";
         cout << "\n\t [3] Baja de Nodos.";
         cout << "\n\t [4] Baja de Aristas.";
-        cout << u8"\n\t [0] Volver al menú principal.";
+        cout << u8"\n\t [0] Volver al menú anterior.";
         cout << u8"\n\n\t Elige una opción: ";
         cin >> opc;
 
@@ -310,7 +307,7 @@ void recorridos(Grafo& grafo){
         cout << "\n\t [1] Dijkstra.";
         cout << "\n\t [2] BFS.";
         cout << "\n\t [3] DFS.";
-        cout << "\n\t [0] Salir del programa.";
+        cout << u8"\n\t [0] Volver al menú anterior.";
         cout << u8"\n\n\t Elige una opción: ";
         cin >> opc;
 
@@ -358,7 +355,7 @@ void recorridos(Grafo& grafo){
                 }
                 }
                 break;
-            case 0: cout << "\n\t Saliendo del programa....";
+            case 0:
                 break;
             default: cout << u8"\n\n\t Opción invalida.\n";
                 break;
@@ -377,7 +374,7 @@ void vehiculos(){
         cout << u8"\n\t [2] Buscar Vehículo.";
         cout << u8"\n\t [3] Baja de Vehículo.";
         cout << u8"\n\t [4] Crear nuevo archivo de vehículos.";
-        cout << "\n\t [0] Salir del programa.";
+        cout << u8"\n\t [0] Regresar al menú anterior.";
         cout << u8"\n\n\t Elige una opción: ";
         cin >> opc;
 
@@ -414,7 +411,7 @@ void vehiculos(){
 
 /* Funcion auxiliar para obtener el nombre del archivo de la red */
 void nombreArchivoRed(string &nomArchivo, bool& saveAs, const string accion){
-    if(!verificarCRed){
+    if(!verificarCRed()){
         crearContRed();
     }
     int cont = contRed(false);

@@ -1,11 +1,15 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include "TablasHash.h"
+#ifndef MODIFICARCSV_H
+#define MODIFICARCSV_H
 #include "verificar_contarCSV.h"
-#include "leerCSV.h"
-#include "windows.h"
 using namespace std;
+
+void agregarNodos(HashRed&, bool);
+void modificarRed(const string, HashRed&, vector <Arista>&);
+void guardarRed();
+void guardarRed(HashRed&, vector <Arista>&);
+void agregarAristas(const HashRed&, vector<Arista>&);
+void eliminarNodos(HashRed&, vector<Arista>&);
+void eliminarAristas(vector<Arista>&);
 
 //Función auxiliar para saber a qué función llamar y solo usar los atributos necesario
 void distribuirRed(const string nomArchivo, bool nueva, bool saveAs, string accion, string objeto){
@@ -20,7 +24,7 @@ void distribuirRed(const string nomArchivo, bool nueva, bool saveAs, string acci
             if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
             guardarRed(nNodos, aristas);
         }else if(objeto == "aristas"){
-            agregarAristas(nNodos, aristas, nueva);
+            agregarAristas(nNodos, aristas);
             if(!nueva || !saveAs)  modificarRed(nomArchivo, nNodos, aristas);
             guardarRed(nNodos, aristas);
 
@@ -31,7 +35,7 @@ void distribuirRed(const string nomArchivo, bool nueva, bool saveAs, string acci
             if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
             guardarRed(nNodos, aristas);
         }else if(objeto == "aristas"){
-            eliminarAristas(nNodos, aristas);
+            eliminarAristas(aristas);
             if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
             guardarRed(nNodos, aristas);
         }
@@ -40,7 +44,6 @@ void distribuirRed(const string nomArchivo, bool nueva, bool saveAs, string acci
 
 //Verificacion de valores correctos
 bool verificarValor(int cont, int opc){
-    SetConsoleOutputCP(CP_UTF8);
     if(opc < 0 || opc >= cont){
         cout << u8"\n\n\t Opción inválida.";
         return false;
@@ -53,7 +56,6 @@ bool verificarValor(int cont, int opc){
 //Preguntar por los nodos que se quieren agregar
 
 void agregarNodos(HashRed& nNodos, bool nueva){
-    SetConsoleOutputCP(CP_UTF8);
     int lastId = 0;
     if(!nueva){
         //Mostramos al usuario los nodos que hay en el archivo
@@ -83,7 +85,7 @@ void agregarNodos(HashRed& nNodos, bool nueva){
 
 //Preguntar por las aristas entre nodos
 
-void agregarAristas(const HashRed& nNodos, vector<Arista>& aristas, bool nueva){
+void agregarAristas(const HashRed& nNodos, vector<Arista>& aristas){
     //////////////////Considrerar agregar mostrar las aristas
     /* Preguntar nodo por nodo si se quiere agregar una arista entre ellos*/
     for(const auto& origen: nNodos.getNodos()){
@@ -162,7 +164,7 @@ void eliminarNodos(HashRed& nNodos, vector<Arista>& aristas){
 
 //Eliminar aristas de una red
 
-void eliminarAristas(HashRed& nNodos, vector<Arista>& aristas){
+void eliminarAristas(vector<Arista>& aristas){
     char resp;
     int origenEliminar, destinoEliminar, pesoEliminar, aristaEliminar, nAristas = 1;
     do{
@@ -226,8 +228,7 @@ void eliminarAristas(HashRed& nNodos, vector<Arista>& aristas){
 
 /* (SOBRECARGADA) CREAR RED DESDE CERO*/
 void guardarRed(){
-    SetConsoleOutputCP(CP_UTF8);
-    if(!verificarCRed){
+    if(!verificarCRed()){
         crearContRed();
     }
 
@@ -241,7 +242,7 @@ void guardarRed(){
     agregarNodos(nNodos, true);
 
     //Preguntar por las aristas
-    agregarAristas(nNodos, aristas, true);
+    agregarAristas(nNodos, aristas);
 
     //Abrir el archivo de la red
     red.open(nomArchivo);
@@ -253,7 +254,7 @@ void guardarRed(){
     /* GUARDAR LOS NODOS EN EL CSV */
     //Encabezados
     red << "#NODOS\n";
-    red << "N;idNodo;nombre\n";
+    red << "#N;idNodo;nombre\n";
 
     for(const Nodo& n: nNodos.getNodos()){
         red << "N;" << n.id << ";" << n.nombre << "\n";
@@ -262,7 +263,7 @@ void guardarRed(){
     /* GUARDAR LAS ARISTAS EN EL CSV */
     //Encabezados
     red << "#ARISTAS (dirigidas)\n";
-    red << "E;origen;destino;peso\n";
+    red << "#E;origen;destino;peso\n";
 
     for(const Arista& a: aristas){
         red << "E;" << a.origen << ";" << a.destino << ";" << a.peso << "\n";
@@ -274,8 +275,7 @@ void guardarRed(){
 
 /* (SOBRECARGADA) GUARDAR COMO UNA NUEVA A PARTIR DE OTRA*/
 void guardarRed(HashRed& nNodos, vector <Arista>& aristas){
-    SetConsoleOutputCP(CP_UTF8);
-    if(!verificarCRed){
+    if(!verificarCRed()){
         crearContRed();
     }
 
@@ -294,7 +294,7 @@ void guardarRed(HashRed& nNodos, vector <Arista>& aristas){
     /* GUARDAR LOS NODOS EN EL CSV */
     //Encabezados
     red << "#NODOS\n";
-    red << "N;idNodo;nombre\n";
+    red << "#N;idNodo;nombre\n";
 
     for(const Nodo& n: nNodos.getNodos()){
         red << "N;" << n.id << ";" << n.nombre << "\n";
@@ -303,7 +303,7 @@ void guardarRed(HashRed& nNodos, vector <Arista>& aristas){
     /* GUARDAR LAS ARISTAS EN EL CSV */
     //Encabezados
     red << "#ARISTAS (dirigidas)\n";
-    red << "E;origen;destino;peso\n";
+    red << "#E;origen;destino;peso\n";
 
     for(const Arista& a: aristas){
         red << "E;" << a.origen << ";" << a.destino << ";" << a.peso << "\n";
@@ -326,7 +326,7 @@ void modificarRed(const string nomArchivo, HashRed& nNodos, vector <Arista>& ari
     /* GUARDAR LOS NODOS EN EL CSV */
     //Encabezados
     red << "#NODOS\n";
-    red << "N;idNodo;nombre\n";
+    red << "#N;idNodo;nombre\n";
 
     for(const Nodo& n: nNodos.getNodos()){
         red << "N;" << n.id << ";" << n.nombre << "\n";
@@ -335,7 +335,7 @@ void modificarRed(const string nomArchivo, HashRed& nNodos, vector <Arista>& ari
     /* GUARDAR LAS ARISTAS EN EL CSV */
     //Encabezados
     red << "#ARISTAS (dirigidas)\n";
-    red << "E;origen;destino;peso\n";
+    red << "#E;origen;destino;peso\n";
 
     for(const Arista& a: aristas){
         red << "E;" << a.origen << ";" << a.destino << ";" << a.peso << "\n";
@@ -397,7 +397,6 @@ bool verificarPlaca(const string placa, const vector<Vehiculo> vehiculos){
 }
 
 void llenarVehiculos(Vehiculo& v, const vector<Vehiculo> vehiculos){
-        SetConsoleOutputCP(CP_UTF8);
         bool placaCorrecta;
         do{
             cout << "\n\t Ingresa la placa del vehiculo (Formato AAA000): ";
@@ -424,7 +423,6 @@ void llenarVehiculos(Vehiculo& v, const vector<Vehiculo> vehiculos){
 
 //Eliminar vehiculos
 void agregarVehiculos(const string nomArchivo){
-    SetConsoleOutputCP(CP_UTF8);
     HashVehiculos hsVh;
     vector<Vehiculo> vehiculos;
     vector<Vehiculo> nuevosVehiculos;
@@ -458,7 +456,6 @@ void agregarVehiculos(const string nomArchivo){
 }
 
 void eliminarVehiculos(const string nomArchivo){
-    SetConsoleOutputCP(CP_UTF8);
     HashVehiculos hashVh;
     vector<Vehiculo> vehiculos;
     csvVehiculos(nomArchivo, hashVh, vehiculos);
@@ -501,13 +498,13 @@ void eliminarVehiculos(const string nomArchivo){
     }
 
     //Actualizar los id de todos los vehiculos restantes para evitar dejar huecos
-    for(int i=0; i<vehiculos.size(); ++i){
+    for(size_t i=0; i<vehiculos.size(); ++i){
         vehiculos[i].id = i;
     }
 
     /* GUARDAR LOS VEHICULOS EN EL CSV */
     //Encabezados
-    archVh << "V;id;placa;tipo;origen;destino;horaEntrada\n";
+    archVh << "#V;id;placa;tipo;origen;destino;horaEntrada\n";
 
     //Vehiculos
     for(const Vehiculo& v: vehiculos){
@@ -519,7 +516,6 @@ void eliminarVehiculos(const string nomArchivo){
 }
 
 void buscarVehiculos(const string nomArchivo){
-    SetConsoleOutputCP(CP_UTF8);
     HashVehiculos hashVh;
     vector<Vehiculo> vehiculos;
     csvVehiculos(nomArchivo, hashVh, vehiculos);
@@ -584,8 +580,7 @@ void buscarVehiculos(const string nomArchivo){
 }
 
 void crearNuevoVehiculos(){
-    SetConsoleOutputCP(CP_UTF8);
-    if(!verificarCVehiculos){
+    if(!verificarCVehiculos()){
         crearContVehiculos();
     }
     int cont = contVehiculos(false);
@@ -612,7 +607,7 @@ void crearNuevoVehiculos(){
 
     /* GUARDAR LOS VEHICULOS EN EL CSV */
     //Encabezados
-    archVh << "V;id;placa;tipo;origen;destino;horaEntrada\n";
+    archVh << "#V;id;placa;tipo;origen;destino;horaEntrada\n";
 
     //Vehiculos
     for(const Vehiculo& v: vehiculos){
@@ -622,3 +617,4 @@ void crearNuevoVehiculos(){
     archVh.close();
     cout << u8"\n\t El archivo fue creado correctamente";
 }
+#endif

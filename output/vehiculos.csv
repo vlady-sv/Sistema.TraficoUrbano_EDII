@@ -1,6 +1,3 @@
 #V;id;placa;tipo;origen;destino;horaEntrada
 V;0;ABC123;Particular;1;2;08:30
 V;1;XYZ999;Transporte;1;0;09:10
-V;2;AGS362;Particular;4;1;10:15
-V;3;OLP475;Particular;2;4;07:36
-V;4;JBS159;Transporte;0;3;01:47

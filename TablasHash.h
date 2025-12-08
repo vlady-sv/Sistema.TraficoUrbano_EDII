@@ -26,12 +26,13 @@ class HashRed{
     private:
         vector<list<Nodo>> tabla;
         size_t capacidad;
+        size_t numElementos;
 
         size_t hashID(int id) const{
             return id % capacidad;
         }
     public:
-        HashRed(size_t cap = 100) : tabla(cap), capacidad(cap) {}
+        HashRed(size_t cap = 100) : tabla(cap), capacidad(cap), numElementos(0) {}
 
         void insertar(const Nodo& n){
             if(isFull()){
@@ -47,6 +48,7 @@ class HashRed{
                 }
             }
             tabla[idx].push_back(n);
+            numElementos++;
         }
 
         Nodo* buscar(const int& id){
@@ -73,6 +75,7 @@ class HashRed{
             for(auto i = tabla[idx].begin(); i != tabla[idx].end(); ++i){
                 if(i->id == id){
                     tabla[idx].erase(i);
+                    numElementos--;
                     return true;
                 }
             }
@@ -92,7 +95,7 @@ class HashRed{
         }
 
         bool isFull(){
-            if(tabla.size() == capacidad) return true;
+            if(numElementos == capacidad) return true;
             return false;
         }
 
@@ -100,27 +103,28 @@ class HashRed{
 
 /* MANEJO DE TABLA HASH DE VEHICULOS */
 struct Vehiculo{
+    int id;
     string placa;
     string tipo;
-    int id;
-    int destino;
     int origen;
-    size_t horaEntrada;
+    int destino;
+    string horaEntrada;
 
-    Vehiculo(string p = "", string t = "", int i = -1, int o = -1, int d = -1, size_t hE= 0.0)
-        : placa(p), tipo(t), id(i), origen(o), destino(d), horaEntrada(hE) {}
+    Vehiculo(int i = -1, string p = "", string t = "", int o = -1, int d = -1, string hE= "s")
+        : id(i), placa(p), tipo(t), origen(o), destino(d), horaEntrada(hE) {}
 };
 
 class HashVehiculos{
     private:
         vector<list<Vehiculo>> tabla;
         size_t capacidad;
+        size_t numElementos;
 
         size_t hashID(int id) const{
             return id % capacidad;
         }
     public:
-        HashVehiculos(size_t cap = 100) : tabla(cap), capacidad(cap) {}
+        HashVehiculos(size_t cap = 100) : tabla(cap), capacidad(cap), numElementos(0){}
         
         void insertar(const Vehiculo& v){
             if(isFull()){
@@ -136,6 +140,7 @@ class HashVehiculos{
                 }
             }
             tabla[idx].push_back(v);
+            numElementos++;
         }
 
         Vehiculo* buscar(const int& id){
@@ -156,8 +161,21 @@ class HashVehiculos{
             }
         }
 
+        bool eliminar(int id){
+            size_t idx = hashID(id);
+
+            for(auto i = tabla[idx].begin(); i != tabla[idx].end(); ++i){
+                if(i->id == id){
+                    tabla[idx].erase(i);
+                    numElementos--;
+                    return true;
+                }
+            }
+            return false;
+        }
+
         bool isFull(){
-            if(tabla.size() == capacidad) return true;
+            if(numElementos == capacidad) return true;
             return false;
         }
 };
