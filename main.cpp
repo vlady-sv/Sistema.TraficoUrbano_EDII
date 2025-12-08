@@ -72,6 +72,9 @@ void iniciarPorDefecto(const string nomArchivo, HashRed& hashRed, vector<Arista>
     for (const auto& a : aristas) {
         grafo.agregarAristas(a.origen, a.destino, a.peso);
     }
+
+    crearContRed();
+    crearContVehiculos();
 }
 
 /* Opciones para Red: Nodos, aristas, archivos de tablas hash*/
@@ -278,7 +281,7 @@ void mostrar_Grafo(Grafo& grafo){
         cout << "\n\t\t\t ===> Matriz y Lista del Grafo <====";
         cout << "\n\t [1] Mostrar Matriz.";
         cout << "\n\t [2] Mostrar Lista de Adyacencia.";
-        cout << "\n\t [0] Salir del programa.";
+        cout << u8"\n\t [0] Volver al menú anterior.";
         cout << u8"\n\n\t Elige una opción: ";
         cin >> opc;
 
@@ -289,7 +292,7 @@ void mostrar_Grafo(Grafo& grafo){
             case 2: 
                 grafo.imprimirLista();
                 break;
-            case 0: cout << "\n\t Saliendo del programa....";
+            case 0: 
                 break;
             default: cout << u8"\n\n\t Opción invalida.\n";
                 break;
@@ -417,18 +420,19 @@ void nombreArchivoRed(string &nomArchivo, bool& saveAs, const string accion){
     int cont = contRed(false);
 
     cout << "\n\t Archivos de Redes de Nodos: ";
-    for(int i=1; i<cont; i++){
+    for(int i=1; i<=cont; i++){
         if(i==1){
             cout << "\n\t [" << i << "] red.csv";
+        }else{
+            cout << "\n\t [" << i << "] red" << i << ".csv";
         }
-        cout << "\n\t [" << i << "] red" << i << ".csv";
     }
 
     int opc;
     do{
-        cout << u8"\n\t Qué archivo desea " << accion << ": ";
+        cout << u8"\n\n\t Qué archivo desea " << accion << ": ";
         cin >> opc;
-    }while(opc < 0 && opc >= cont);
+    }while(opc <= 0 && opc >= cont);
 
     //Construir el nombre del archivo de la red seleccionado por el usuario
     if(opc == 1)
@@ -459,18 +463,19 @@ void nombreArchivoVehiculos(string &nomArchivo){
     int cont = contVehiculos(false);
 
     cout << u8"\n\t Archivos de Vehículos: ";
-    for(int i=1; i<cont; i++){
+    for(int i=1; i<=cont; i++){
         if(i==1){
             cout << "\n\t [" << i << "] vehiculos.csv";
+        }else{
+            cout << "\n\t [" << i << "] vehiculos" << i << ".csv";
         }
-        cout << "\n\t [" << i << "] vehiculos" << i << ".csv";
     }
 
     int opc;
     do{
         cout << u8"\n\t Elija un archivo para trabajar con él: ";
         cin >> opc;
-    }while(opc < 0 && opc >= cont);
+    }while(opc <= 0 && opc >= cont);
 
     //Construir el nombre del archivo de la red seleccionado por el usuario
     if(opc == 1)
