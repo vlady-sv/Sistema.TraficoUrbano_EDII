@@ -96,6 +96,17 @@ public:
 
     //crear nuevo nodo
     void altaNodo(const string& nombre){
+        //para agregar nodo en el primer espacio disponible, busca un "hueco"
+        for (size_t i = 0; i < activo.size(); i++) {
+            if (!activo[i]) {
+                activo[i] = true;
+                nombres[i] = nombre;
+                adj[i] = nullptr;
+                cout << "Nodo creado con ID = " << i << " (reusado)\n";
+                return;
+            }
+        }
+        //por si no hay "huecos", entonces incerta al final
         adj.push_back(nullptr);
         nombres.push_back(nombre);
         activo.push_back(true);
