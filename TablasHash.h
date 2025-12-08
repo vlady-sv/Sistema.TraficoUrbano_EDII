@@ -34,6 +34,10 @@ class HashRed{
         HashRed(size_t cap = 100) : tabla(cap), capacidad(cap) {}
 
         void insertar(const Nodo& n){
+            if(isFull()){
+                cout << "\n\t La tabla esta llena, no se pueden ingresar mas datos.";
+                return;
+            }
             size_t idx = hashID(n.id);
 
             for(auto& nd: tabla[idx]){
@@ -87,6 +91,11 @@ class HashRed{
             return nodos;
         }
 
+        bool isFull(){
+            if(tabla.size() == capacidad) return true;
+            return false;
+        }
+
 };
 
 /* MANEJO DE TABLA HASH DE VEHICULOS */
@@ -114,6 +123,10 @@ class HashVehiculos{
         HashVehiculos(size_t cap = 100) : tabla(cap), capacidad(cap) {}
         
         void insertar(const Vehiculo& v){
+            if(isFull()){
+                cout << "\n\t La tabla esta llena, no se pueden ingresar mas datos.";
+                return;
+            }
             size_t idx = hashID(v.id);
 
             for(auto& vh: tabla[idx]){
@@ -141,6 +154,11 @@ class HashVehiculos{
                 }
                 cout << "\n";
             }
+        }
+
+        bool isFull(){
+            if(tabla.size() == capacidad) return true;
+            return false;
         }
 };
 

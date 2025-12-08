@@ -347,6 +347,27 @@ void modificarRed(const string nomArchivo, HashRed& nNodos, vector <Arista>& ari
 
 /* OPCIONES PARA VEHICULOS */
 
+/* (SOBRECARGADA) Solo verificar formato de placa*/
+bool verificarPlaca(const string placa){
+    bool correcto = true;
+    //Primero se verifica el formato 'AAA000'
+    if(!(placa.size() == 6)) correcto = false;
+    if(isdigit(placa[0])) correcto = false;
+    if(isdigit(placa[1])) correcto = false;
+    if(isdigit(placa[2])) correcto = false;
+    if(!(isdigit(placa[3]))) correcto = false;
+    if(!(isdigit(placa[4]))) correcto = false;
+    if(!(isdigit(placa[5]))) correcto = false;
+    
+    if(correcto == false){
+        cout << "\n\t Error: El formato de la placa es incorrecto.";
+        return false;
+    }
+
+    return true;
+}
+
+/* (SOBRECARGADA) Verificar el formato de placa y verificar que no se repita*/
 bool verificarPlaca(const string placa, const vector<Vehiculo> vehiculos){
     bool correcto = true;
     //Primero se verifica el formato 'AAA000'
@@ -410,6 +431,7 @@ void agregarVehiculos(const string nomArchivo){
     csvVehiculos(nomArchivo, hsVh, vehiculos);
     int nVehiculos; 
     int lastId;
+
     for(const Vehiculo& v: vehiculos){
         lastId = v.id;
     }
@@ -436,11 +458,129 @@ void agregarVehiculos(const string nomArchivo){
 }
 
 void eliminarVehiculos(const string nomArchivo){
+    SetConsoleOutputCP(CP_UTF8);
+    HashVehiculos hashVh;
+    vector<Vehiculo> vehiculos;
+    csvVehiculos(nomArchivo, hashVh, vehiculos);
+    int vEliminar;
+    char resp; 
 
+    do{
+        if(vehiculos.empty()){ //Si el vector esta vacio ya no hay vehiculos para eliminar
+            cout << "\n\t No hay vehículos en el archivo.";
+            return;
+        }
+        int i = 1;
+        cout << u8"\n\t Los vehículos contenidos en el archivo son: ";
+        for(const Vehiculo& v: vehiculos){ //Mostrar todo los vehiculos
+            cout << "\n\t [" << i << "] | Id: " << v.id << " | Placa: " << v.placa << " | Tipo: " << v.tipo << " | Origen: " << v.origen << " | Destino: " 
+                << v.destino << " | Hora de entrada: " << v.horaEntrada;
+            i++;
+        }
+        
+        do{
+            cout << u8"\n\t Qué vehículo desea eliminar: ";
+            cin >> vEliminar;
+
+            if(vEliminar < 1 || vEliminar > i) cout << u8"\n\t Error. Opción fuera de rango."; //Verificar que este dentro del rango de vehiculos que le mostramos
+        }while(vEliminar < 1 && vEliminar > i);
+
+         
+        do{
+            cout << "\n\t Desea eliminar otro vehículo?  [S/N]: ";
+            cin.ignore();
+            cin >> resp;
+        }while(resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+    }while(resp == 's' || resp == 'S');
+
+    fstream archVh;
+    archVh.open(nomArchivo, ios::out|ios::trunc);
+    if(!archVh){
+        cout << u8"\n\t El archivo no se abrió correctamente.";
+        return;
+    }
+
+    //Actualizar los id de todos los vehiculos restantes para evitar dejar huecos
+    for(int i=0; i<vehiculos.size(); ++i){
+        vehiculos[i].id = i;
+    }
+
+    /* GUARDAR LOS VEHICULOS EN EL CSV */
+    //Encabezados
+    archVh << "V;id;placa;tipo;origen;destino;horaEntrada\n";
+
+    //Vehiculos
+    for(const Vehiculo& v: vehiculos){
+        archVh << "V;" << v.id << ";" << v.placa << ";" << v.tipo << ";" << v.origen << ";" << v.destino << ";" << v.horaEntrada << "\n";
+    }
+    
+    archVh.close();
+    cout << u8"\n\t Los vehículos fueron eliminados correctamente, y los Id fueron actualizados.";
 }
 
 void buscarVehiculos(const string nomArchivo){
+    SetConsoleOutputCP(CP_UTF8);
+    HashVehiculos hashVh;
+    vector<Vehiculo> vehiculos;
+    csvVehiculos(nomArchivo, hashVh, vehiculos);
+    int opc;
 
+    if(vehiculos.empty()){
+        cout << u8"\n\t El archivo no contiene vehículos, no se puede buscar.";
+        return;
+    }
+    do{
+        cout << "\n\t [1] Buscar por Id";
+        cout << "\n\t [2] Buscar por placa";
+        cin >> opc;
+
+        switch(opc){
+            case 1:{
+                    int id;
+                    cout << "\n\t Ingresa el Id el vehículo a buscar: ";
+                    cin >> id;
+                    Vehiculo* v = hashVh.buscar(id);
+                    if(v == nullptr){
+                        cout << u8"\n\t El vehículo con el Id " << id << " no se encuentra en el archivo.";
+                    }else{
+                        cout << u8"\n\t -- Vehículo --";
+                        cout << "\n\t Id: " << v->id << " | Placa: " << v->placa << " | Tipo: " << v->tipo << " | Origen: " << v->origen << " | Destino: " 
+                            << v->destino << " | Hora de entrada: " << v->horaEntrada;
+                    }
+                }
+                break;
+            case 2:{
+                    bool encontrado = false, formatoCorrecto;
+                    Vehiculo vBuscado;
+                    string placa;
+
+                    do{
+                        cout << u8"\n\t Ingresa la placa del vehículo a buscar (Formato AAA000): ";
+                        cin >> placa;
+                        formatoCorrecto = verificarPlaca(placa);
+                    }while(!formatoCorrecto);
+
+                    for(const Vehiculo& v: vehiculos){
+                        if(v.placa == placa){ //Comparamos vehiculo por vehiculo para ver si la placa coincide
+                            encontrado = true;
+                            vBuscado = v;
+                            break;
+                        }
+                    }
+
+                    if(!encontrado){ //Si se mantuvo en false sabemos que no se encontro el vehiculo con la placa dada por el usuario
+                        cout << u8"\n\t El vehículo con la placa " << placa << " no se encuentra en el archivo.";
+                    }else{
+                        cout << u8"\n\t -- Vehículo --";
+                        cout << "\n\t Id: " << vBuscado.id << " | Placa: " << vBuscado.placa << " | Tipo: " << vBuscado.tipo << " | Origen: " << vBuscado.origen << " | Destino: " 
+                            << vBuscado.destino << " | Hora de entrada: " << vBuscado.horaEntrada;
+                    }
+                }
+                break;
+            default: cout << u8"\n\n\t Opción inválida.\n";
+                break;
+        }
+    }while(opc != 1 && opc != 2);
 }
 
 void crearNuevoVehiculos(){
