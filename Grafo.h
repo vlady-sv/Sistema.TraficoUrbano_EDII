@@ -108,7 +108,7 @@ public:
     void eliminarNodo(size_t u){
         if(!existeNodo(u)) return;
 
-        //borrar Aristass salientes
+        //borrar Aristas salientes
         Aristas* a = adj[u];
         while(a){
             Aristas* tmp = a;
@@ -117,7 +117,7 @@ public:
         }
         adj[u] = nullptr;
 
-        //borrar Aristass entrantes
+        //borrar Aristas entrantes
         for(size_t i = 0; i < adj.size(); i++){
             if(activo[i])
                 eliminarAristas(i, u);
