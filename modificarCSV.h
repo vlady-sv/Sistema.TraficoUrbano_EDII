@@ -269,7 +269,7 @@ void guardarRed(){
     }
     
     red.close();
-    cout << u8"\n\tEl archivo fue guardado correctamente.";
+    cout << "\n\tEl archivo fue guardado correctamente.";
 }
 
 /* (SOBRECARGADA) GUARDAR COMO UNA NUEVA A PARTIR DE OTRA*/
@@ -347,10 +347,92 @@ void modificarRed(const string nomArchivo, HashRed& nNodos, vector <Arista>& ari
 
 /* OPCIONES PARA VEHICULOS */
 
+bool verificarPlaca(const string placa, const vector<Vehiculo> vehiculos){
+    bool correcto = true;
+    //Primero se verifica el formato 'AAA000'
+    if(!(placa.size() == 6)) correcto = false;
+    if(isdigit(placa[0])) correcto = false;
+    if(isdigit(placa[1])) correcto = false;
+    if(isdigit(placa[2])) correcto = false;
+    if(!(isdigit(placa[3]))) correcto = false;
+    if(!(isdigit(placa[4]))) correcto = false;
+    if(!(isdigit(placa[5]))) correcto = false;
+    
+    if(correcto == false){
+        cout << "\n\t Error: El formato de la placa es incorrecto.";
+        return false;
+    }
+    
+    //Si el formato fue correcto se verifica que no haya otro vehiculo con dicha placa
+    for(const Vehiculo& v: vehiculos){
+        if(v.placa == placa){
+            cout << u8"\n\t Error: Ya hay un vehículo registrado con la placa " << placa;
+            return false;
+        }   
+    }
+
+    //Si no se dio ninguno de los casos anteriores la placa es valida
+    return true;
+}
+
+void llenarVehiculos(Vehiculo& v, const vector<Vehiculo> vehiculos){
+        SetConsoleOutputCP(CP_UTF8);
+        bool placaCorrecta;
+        do{
+            cout << "\n\t Ingresa la placa del vehiculo (Formato AAA000): ";
+            cin >> v.placa;
+            placaCorrecta = verificarPlaca(v.placa, vehiculos);
+        }while(!placaCorrecta);
+        int tVh;
+        do{
+            cout << u8"\n\t [1] Partícular";
+            cout << u8"\n\t [2] Transporte";
+            cout << "\n\t Escoja el tipo de vehículo: ";
+            cin >> tVh;
+        }while(tVh != 1 && tVh != 2);
+        if(tVh == 1) v.tipo = "Partícular";
+        else v.tipo = "Transporte";
+        cout << u8"\n\t Ingresa el nodo de origen del vehículo: ";
+        cin >> v.origen;
+        cout << u8"\n\t Ingresa el nodo de destino del vehículo: ";
+        cin >> v.destino;
+        cout << u8"\n\t Ingresa la hora de entrada del vehículo: ";
+        cin >> v.horaEntrada;
+}
+
 
 //Eliminar vehiculos
 void agregarVehiculos(const string nomArchivo){
+    SetConsoleOutputCP(CP_UTF8);
+    HashVehiculos hsVh;
+    vector<Vehiculo> vehiculos;
+    vector<Vehiculo> nuevosVehiculos;
+    csvVehiculos(nomArchivo, hsVh, vehiculos);
+    int nVehiculos; 
+    int lastId;
+    for(const Vehiculo& v: vehiculos){
+        lastId = v.id;
+    }
 
+    int idInicial = lastId + 1;
+    cout << u8"\n\t Cuántos vehículos desea ingresar: ";
+    cin >> nVehiculos;
+    for(int i=idInicial; i<=nVehiculos; ++i){
+        cout << u8"\n\t -- Vehículo " << i << " --";
+        nuevosVehiculos[i].id = i;
+        llenarVehiculos(nuevosVehiculos[i], vehiculos);
+    }
+
+    fstream archVh;
+    archVh.open(nomArchivo, ios::out|ios::app);
+
+    //Ingresar los nuevos vehiculos al final del CSV
+    for(const Vehiculo& v: nuevosVehiculos){
+        archVh << "V;" << v.id << ";" << v.placa << ";" << v.tipo << ";" << v.origen << ";" << v.destino << ";" << v.horaEntrada << "\n";
+    }
+
+    archVh.close();
+    cout << u8"\n\t Los vehículos se agregaron correctamente al archivo: " << nomArchivo;
 }
 
 void eliminarVehiculos(const string nomArchivo){
@@ -377,18 +459,26 @@ void crearNuevoVehiculos(){
 
     for(int i=0; i<nVehiculos; ++i){
         cout << "\n\t -- Vehiculo " << i+1 << " --";
-        cout << "\n\t";
-        cin >> vehiculos[i].id;
-        cout << "\n\t ";
-        cin >> vehiculos[i].placa;
-        cout << "\n\t";
-        cin >> vehiculos[i].tipo;
-        cout << "\n\t ";
-        cin >> vehiculos[i].origen;
-        cout << "\n\t";
-        cin >> vehiculos[i].destino;
-        cout << "\n\t";
-        cin >> vehiculos[i].horaEntrada;
+        vehiculos[i].id = i;
+        llenarVehiculos(vehiculos[i], vehiculos);
+    }
+
+    fstream archVh;
+    archVh.open(nomArchivo);
+    if(!archVh){
+        cout << u8"\n\t El archivo no se abrió correctamente.";
+        return;
+    }
+
+    /* GUARDAR LOS VEHICULOS EN EL CSV */
+    //Encabezados
+    archVh << "V;id;placa;tipo;origen;destino;horaEntrada\n";
+
+    //Vehiculos
+    for(const Vehiculo& v: vehiculos){
+        archVh << "V;" << v.id << ";" << v.placa << ";" << v.tipo << ";" << v.origen << ";" << v.destino << ";" << v.horaEntrada << "\n";
     }
     
+    archVh.close();
+    cout << u8"\n\t El archivo fue creado correctamente";
 }
