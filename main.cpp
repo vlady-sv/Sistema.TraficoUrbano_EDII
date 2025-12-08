@@ -73,8 +73,12 @@ void iniciarPorDefecto(const string nomArchivo, HashRed& hashRed, vector<Arista>
         grafo.agregarAristas(a.origen, a.destino, a.peso);
     }
 
-    crearContRed();
-    crearContVehiculos();
+    if(!verificarCRed()){
+        crearContRed();
+    }
+    if(!verificarCVehiculos()){
+        crearContVehiculos();
+    }
 }
 
 /* Opciones para Red: Nodos, aristas, archivos de tablas hash*/
