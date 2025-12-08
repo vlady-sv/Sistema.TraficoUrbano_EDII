@@ -95,10 +95,11 @@ struct Vehiculo{
     string tipo;
     int id;
     int destino;
+    int origen;
     size_t horaEntrada;
 
-    Vehiculo(string p = "", string t = "", int i = -1, int d = -1, size_t hE= 0.0)
-        : placa(p), tipo(t), id(i), destino(d), horaEntrada(hE) {}
+    Vehiculo(string p = "", string t = "", int i = -1, int o = -1, int d = -1, size_t hE= 0.0)
+        : placa(p), tipo(t), id(i), origen(o), destino(d), horaEntrada(hE) {}
 };
 
 class HashVehiculos{

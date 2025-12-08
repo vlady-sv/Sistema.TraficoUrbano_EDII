@@ -230,17 +230,33 @@ void vehiculos(){
         cout << u8"\n\t [1] Alta de Vehículo.";
         cout << u8"\n\t [2] Buscar Vehículo.";
         cout << u8"\n\t [3] Baja de Vehículo.";
+        cout << u8"\n\t [4] Crear nuevo archivo de vehículos.";
         cout << "\n\t [0] Salir del programa.";
         cout << u8"\n\n\t Elige una opción: ";
         cin >> opc;
 
         switch(opc){
-            case 1:
-
+            case 1:{
+                string nomArchivo;
+                nombreArchivoVehiculos(nomArchivo);
+                agregarVehiculos(nomArchivo);
+                }
                 break;
-            case 2: 
+            case 2:{
+                string nomArchivo;
+                nombreArchivoVehiculos(nomArchivo);
+                buscarVehiculos(nomArchivo);
+                }
                 break;
-            case 3: 
+            case 3:{
+                string nomArchivo;
+                nombreArchivoVehiculos(nomArchivo);
+                eliminarVehiculos(nomArchivo);
+                }
+                break;
+            case 4:{
+                crearNuevoVehiculos();
+                }
                 break;
             case 0: cout << "\n\t Saliendo del programa....";
                 break;
@@ -291,7 +307,7 @@ void nombreArchivoRed(string &nomArchivo, bool& saveAs, const string accion){
     
 }
 
-void nombreArchivoVehiculos(string &nomArchivo, bool& saveAs, const string accion){
+void nombreArchivoVehiculos(string &nomArchivo){
     if(!verificarCVehiculos()){
         crearContVehiculos();
     }
@@ -307,7 +323,7 @@ void nombreArchivoVehiculos(string &nomArchivo, bool& saveAs, const string accio
 
     int opc;
     do{
-        cout << u8"\n\t Qué archivo desea " << accion << ": ";
+        cout << u8"\n\t Elija un archivo para trabajar con él: ";
         cin >> opc;
     }while(opc < 0 && opc >= cont);
 
@@ -316,17 +332,5 @@ void nombreArchivoVehiculos(string &nomArchivo, bool& saveAs, const string accio
         nomArchivo = "vehiculos.csv";
     else
         nomArchivo = "vehiculos" + to_string(opc) + ".csv";
-
-    if(accion == "agregar" || accion == "eliminar"){
-        do{
-            cout << "\n\t [1] Modificar archivo y guardar.";
-            cout << "\n\t [2] Modificar archivo y guardar como uno nuevo.";
-            cout << u8"\n\n\t Escoja una opción para guardar las modificaciones: ";
-            cin >> opc;
-        }while(opc < 1 && opc > 2);
-
-        if(opc == 1) saveAs = false;
-        else saveAs = true;
-    }
 }
 #endif

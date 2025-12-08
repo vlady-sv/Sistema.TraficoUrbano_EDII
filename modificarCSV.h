@@ -225,7 +225,7 @@ void eliminarAristas(HashRed& nNodos, vector<Arista>& aristas){
 }
 
 /* (SOBRECARGADA) CREAR RED DESDE CERO*/
-bool guardarRed(){
+void guardarRed(){
     SetConsoleOutputCP(CP_UTF8);
     if(!verificarCRed){
         crearContRed();
@@ -247,7 +247,7 @@ bool guardarRed(){
     red.open(nomArchivo);
     if(!red){
         cout << u8"\n\t El archivo no se abrió correctamente.";
-        return false;
+        return;
     }
 
     /* GUARDAR LOS NODOS EN EL CSV */
@@ -270,11 +270,10 @@ bool guardarRed(){
     
     red.close();
     cout << u8"\n\tEl archivo fue guardado correctamente.";
-    return true;
 }
 
 /* (SOBRECARGADA) GUARDAR COMO UNA NUEVA A PARTIR DE OTRA*/
-bool guardarRed(HashRed& nNodos, vector <Arista>& aristas){
+void guardarRed(HashRed& nNodos, vector <Arista>& aristas){
     SetConsoleOutputCP(CP_UTF8);
     if(!verificarCRed){
         crearContRed();
@@ -289,7 +288,7 @@ bool guardarRed(HashRed& nNodos, vector <Arista>& aristas){
     red.open(nomArchivo);
     if(!red){
         cout << u8"\n\t El archivo no se abrió correctamente.";
-        return false;
+        return;
     }
 
     /* GUARDAR LOS NODOS EN EL CSV */
@@ -312,7 +311,6 @@ bool guardarRed(HashRed& nNodos, vector <Arista>& aristas){
 
     red.close();
     cout << u8"\n\tEl archivo fue guardado correctamente.";
-    return true;
 }
 
 /* GUARDAR LAS MODIFICACIONES DEL ARCHIVO DE UNA RED YA EXISTENTE*/
@@ -351,25 +349,46 @@ void modificarRed(const string nomArchivo, HashRed& nNodos, vector <Arista>& ari
 
 
 //Eliminar vehiculos
-void agregarVehiculos(){
+void agregarVehiculos(const string nomArchivo){
 
 }
 
-void eliminarVehiculos(){
+void eliminarVehiculos(const string nomArchivo){
 
 }
 
-bool crearNuevoVehiculos(){
+void buscarVehiculos(const string nomArchivo){
 
 }
 
-bool modificarArchivoVehiculos(){
-    if(!verificarCVehiculos) return false;
-    int cont = contVehiculos();
+void crearNuevoVehiculos(){
+    SetConsoleOutputCP(CP_UTF8);
+    if(!verificarCVehiculos){
+        crearContVehiculos();
+    }
+    int cont = contVehiculos(false);
+    string nomArchivo = "vehiculos" + to_string(cont) + ".csv";
+
+    HashVehiculos hashVh;
+    vector <Vehiculo> vehiculos;
+    int nVehiculos;
+    cout << u8"\n\t Cuántos vehículos desea ingresar: ";
+    cin >> nVehiculos;
+
+    for(int i=0; i<nVehiculos; ++i){
+        cout << "\n\t -- Vehiculo " << i+1 << " --";
+        cout << "\n\t";
+        cin >> vehiculos[i].id;
+        cout << "\n\t ";
+        cin >> vehiculos[i].placa;
+        cout << "\n\t";
+        cin >> vehiculos[i].tipo;
+        cout << "\n\t ";
+        cin >> vehiculos[i].origen;
+        cout << "\n\t";
+        cin >> vehiculos[i].destino;
+        cout << "\n\t";
+        cin >> vehiculos[i].horaEntrada;
+    }
+    
 }
-
-bool modificar_GuardarNuevoVehiculos(){
-
-}
-
-

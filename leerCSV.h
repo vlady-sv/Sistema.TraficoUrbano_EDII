@@ -64,22 +64,28 @@ void csvVehiculos(const string& archivo, HashVehiculos& hashVe, vector<Vehiculo>
         string tipo;
         getline(ss, tipo, ';'); // Saca la V del principio para que no errores
 
-        string stringId, nombre;
+        string stringId, stringPlaca, stringTipoV, stringOrigen, stringDestino, stringHoraEntrada;
         getline(ss, stringId, ';');
-        getline(ss, nombre, ';');
+        getline(ss, stringPlaca, ';');
+        getline(ss, stringTipoV, ';');
+        getline(ss, stringOrigen, ';');
+        getline(ss, stringDestino, ';');
+        getline(ss, stringHoraEntrada, ';');
 
-        string sPlaca, sTipo, sId, sDestino, sHoraEnt;
+        string sId, sPlaca, sTipo, sOrigen, sDestino, sHoraEnt;
 
+            getline(ss, sId, ';');
             getline(ss, sPlaca, ';');
             getline(ss, sTipo, ';');
-            getline(ss, sId, ';');
+            getline(ss, sOrigen, ';');
             getline(ss, sDestino, ';');
             getline(ss, sHoraEnt, ';');
 
             Vehiculo v;
+            v.id = stoi(sId);
             v.placa = stoi(sPlaca);
             v.tipo = stoi(sTipo);
-            v.id = stoi(sId);
+            v.origen = stoi(sOrigen);
             v.destino = stoi(sDestino);
             v.horaEntrada = stoi(sHoraEnt);
             hashVe.insertar(Vehiculo(v));
