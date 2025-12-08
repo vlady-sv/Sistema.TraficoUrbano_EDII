@@ -88,7 +88,7 @@ void red_Nodos_Hash(){
                 }
                 //insertamos las aristas
                 for (const auto& a : aristas) {
-                    grafo.agregarArista(a.origen, a.destino, a.peso);
+                    grafo.agregarAristas(a.origen, a.destino, a.peso);
                 }
                 cout << u8"\n\t Red cargada correctamente desde " << archivo << "\n";
                 }
