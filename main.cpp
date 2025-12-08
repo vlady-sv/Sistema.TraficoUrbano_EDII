@@ -12,17 +12,24 @@ using namespace std;
 Grafo grafo(100, true);
 HashVehiculos hash(100);
 
-void red_Nodos_Hash();
+void iniciarPorDefecto(const string, HashRed&, vector<Arista>&, Grafo&);
+void red_Nodos_Hash(HashRed&, vector<Arista>&, Grafo&);
 void redArchivo();
-void redGrafo();
-void mostrar_Grafo();
-void recorridos();
+void redGrafo(Grafo&);
+void mostrar_Grafo(Grafo&);
+void recorridos(Grafo&);
 void vehiculos();
 void nombreArchivo(string&, bool&, const string);
 void nombreArchivoVehiculos(string&, bool&, const string);
 
 int main(){
     SetConsoleOutputCP(CP_UTF8);
+    HashRed hashRed(100);
+    vector<Arista> aristas;
+    Grafo grafo(100, true);
+
+    iniciarPorDefecto("red.csv", hashRed, aristas, grafo);
+
     int opc;
 
     do{
@@ -37,11 +44,11 @@ int main(){
         cin >> opc;
 
         switch(opc){
-            case 1: red_Nodos_Hash();
+            case 1: red_Nodos_Hash(hashRed, aristas, grafo);
                 break;
-            case 2: mostrar_Grafo();
+            case 2: mostrar_Grafo(grafo);
                 break;
-            case 3: recorridos();
+            case 3: recorridos(grafo);
                 break;
             case 4: vehiculos();
                 break;
@@ -53,7 +60,24 @@ int main(){
     return 0;
 }
 
-void red_Nodos_Hash(){
+/* Iniciar por defecto con una red cuando se abre el programa */
+void iniciarPorDefecto(const string nomArchivo, HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo){
+    csvRed(nomArchivo, hashRed, aristas);
+    //Inserción de los nodos en el grafo
+    for (size_t i = 0; i < 100; i++) {
+        Nodo* n = hashRed.buscar(i);
+        if (n != nullptr) {
+            grafo.altaNodo(n->id, n->nombre);
+        }
+    }
+    //Inserción de las aristas
+    for (const auto& a : aristas) {
+        grafo.agregarAristas(a.origen, a.destino, a.peso);
+    }
+}
+
+/* Opciones para Red: Nodos, aristas, archivos de tablas hash*/
+void red_Nodos_Hash(HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo){
     int opc;
 
     do{
@@ -73,8 +97,8 @@ void red_Nodos_Hash(){
                 int cont;
                 nombreArchivoRed(archivo, saveAs, "cargar");
             
-                HashRed hashRed(100);
-                vector<Arista> aristas;
+                hashRed = HashRed(100);
+                aristas.clear();
                 csvRed(archivo, hashRed, aristas);
                 //reiniciamos el grafo
                 grafo = Grafo(100, true);
@@ -98,7 +122,7 @@ void red_Nodos_Hash(){
                 } 
                 break;
             case 3:{
-                    redGrafo();
+                    redGrafo(grafo);
                 }
                 break;
             case 0: cout << u8"\n\t Regresando al menú principal...\n\n";
@@ -109,6 +133,7 @@ void red_Nodos_Hash(){
     }while(opc != 0);
 }
 
+/* Opciones para Red desde los archivos, modificar, eliminar, agregar*/
 void redArchivo(){
     int opc;
 
@@ -165,7 +190,8 @@ void redArchivo(){
     }while(opc != 0);
 }
 
-void redGrafo(){
+/* Opciones para Red desde el grafo (desde una red ya cargada) eliminar y agregar nodos y aristas*/
+void redGrafo(Grafo& grafo){
     int opc;
 
     do{
@@ -181,60 +207,61 @@ void redGrafo(){
 
         switch(opc){
             case 1:{
-                string nombre;
-                cout << u8"Nombre del nodo: ";
-                cin.ignore();
-                getline(cin, nombre);
-                size_t id = grafo.altaNodo(nombre);
-                cout << u8"\n\t Nodo creado con ID: " << id << "\n";
+                    string nombre;
+                    cout << u8"Nombre del nodo: ";
+                    cin.ignore();
+                    getline(cin, nombre);
+                    grafo.altaNodo(nombre);
                 }
                 break;
             case 2:{
-                int u, v; float w;
-                cout << u8"Nodo origen (ID): "; 
-                cin >> u;
-                cout << u8"Nodo destino (ID): "; 
-                cin >> v;
-                cout << u8"Peso: "; 
-                cin >> w;
-                if (!grafo.existeNodo(u) || !grafo.existeNodo(v)){
-                    cout << u8"\n\t Error: uno o ambos nodos no existen.\n";
-                }else if (u == v){
-                    cout << u8"\n\t Error: No se permiten bucles (u -> u).\n";
-                }else if (grafo.existeAristas(u, v)){
-                    cout << u8"\n\t Ya existe una arista de " << u << " a " << v << "\n";
-                    char resp;
-                    cout << u8"\t ¿Reemplazar peso? (s/n): "; cin >> resp;
-                    if (resp != 's' && resp != 'S') break;
-                    grafo.eliminarAristas(u, v);  //borra la antigua
-                }
-                grafo.agregarAristas(u, v, w);
-                cout << u8"\n\t Arista " << u << " -> " << v << " agregada con peso " << w << "\n";
+                    int u, v; float w;
+                    cout << u8"Nodo origen (ID): "; 
+                    cin >> u;
+                    cout << u8"Nodo destino (ID): "; 
+                    cin >> v;
+                    cout << u8"Peso: "; 
+                    cin >> w;
+                    if (!grafo.existeNodo(u) || !grafo.existeNodo(v)){
+                        cout << u8"\n\t Error: uno o ambos nodos no existen.\n";
+                    }else if (u == v){
+                        cout << u8"\n\t Error: No se permiten bucles (u -> u).\n";
+                    }else if (grafo.existeAristas(u, v)){
+                        cout << u8"\n\t Ya existe una arista de " << u << " a " << v << "\n";
+                        char resp;
+                        cout << u8"\t ¿Reemplazar peso? (s/n): "; cin >> resp;
+                        if (resp != 's' && resp != 'S') break;
+                        grafo.eliminarAristas(u, v);  //borra la antigua
+                    }
+                    grafo.agregarAristas(u, v, w);
+                    cout << u8"\n\t Arista " << u << " -> " << v << " agregada con peso " << w << "\n";
                 }
                 break;
             case 3:{
-                size_t id;
-                cout << u8"\n\t ID del nodo a eliminar: ";
-                cin >> id;
-            
-                if (!grafo.existeNodo(id)){
-                    cout << u8"\n\t Error: El nodo " << id << " no existe o ya fue eliminado.\n";
-                }else{
-                    grafo.eliminarNodo(id);
-                    cout << u8"\t Nodo " << id << " y todas sus aristas eliminadas correctamente.\n";
-                }   
+                    size_t id;
+                    cout << u8"\n\t ID del nodo a eliminar: ";
+                    cin >> id;
+                
+                    if (!grafo.existeNodo(id)){
+                        cout << u8"\n\t Error: El nodo " << id << " no existe o ya fue eliminado.\n";
+                    }else{
+                        grafo.eliminarNodo(id);
+                        cout << u8"\t Nodo " << id << " y todas sus aristas eliminadas correctamente.\n";
+                    }
+                }
                 break;
             case 4:{
-                int u, v;
-                cout << u8"Nodo origen: "; 
-                cin >> u;
-                cout << u8"Nodo destino: "; 
-                cin >> v;
-                if (!grafo.existeAristas(u, v)){
-                    cout << u8"\n\t No existe arista de " << u << " -> " << v << "\n";
-                }else{
-                    grafo.eliminarAristas(u, v);
-                    cout << u8"\t Arista " << u << " -> " << v << " eliminada correctamente.\n";
+                    int u, v;
+                    cout << u8"Nodo origen: "; 
+                    cin >> u;
+                    cout << u8"Nodo destino: "; 
+                    cin >> v;
+                    if (!grafo.existeAristas(u, v)){
+                        cout << u8"\n\t No existe arista de " << u << " -> " << v << "\n";
+                    }else{
+                        grafo.eliminarAristas(u, v);
+                        cout << u8"\t Arista " << u << " -> " << v << " eliminada correctamente.\n";
+                    }
                 }
                 break;
             case 0: cout << u8"\n\t Regresando al menú principal...\n\n";
@@ -245,7 +272,8 @@ void redGrafo(){
     }while(opc != 0);
 }
 
-void mostrar_Grafo(){
+/* Matriz y lista del grafo */
+void mostrar_Grafo(Grafo& grafo){
     int opc;
 
     do{
@@ -272,7 +300,8 @@ void mostrar_Grafo(){
     }while(opc != 0);
 }
 
-void recorridos(){
+/* Recorridos */
+void recorridos(Grafo& grafo){
     int opc;
 
     do{
@@ -337,6 +366,7 @@ void recorridos(){
     }while(opc != 0);
 }
 
+/* Opciones para el manejo de archivos de vehiculos*/
 void vehiculos(){
     int opc;
 
@@ -382,6 +412,7 @@ void vehiculos(){
     }while(opc != 0);
 }
 
+/* Funcion auxiliar para obtener el nombre del archivo de la red */
 void nombreArchivoRed(string &nomArchivo, bool& saveAs, const string accion){
     if(!verificarCRed){
         crearContRed();
@@ -423,6 +454,7 @@ void nombreArchivoRed(string &nomArchivo, bool& saveAs, const string accion){
     
 }
 
+/* Funcion auxiliar para obtener el nombre del archivo de vehiculos */
 void nombreArchivoVehiculos(string &nomArchivo){
     if(!verificarCVehiculos()){
         crearContVehiculos();
