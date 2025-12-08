@@ -7,7 +7,8 @@
 #include "windows.h"
 using namespace std;
 
-void distribuir(const string nomArchivo, bool nueva, bool saveAs, string accion, string objeto){
+//Función auxiliar para saber a qué función llamar y solo usar los atributos necesario
+void distribuirRed(const string nomArchivo, bool nueva, bool saveAs, string accion, string objeto){
     HashRed nNodos;
     vector <Arista> aristas;
 
@@ -16,23 +17,23 @@ void distribuir(const string nomArchivo, bool nueva, bool saveAs, string accion,
     if(accion == "agregar"){
         if(objeto == "nodos"){ //Tambien separamos segun el objeto
             agregarNodos(nNodos, nueva); //Dependiendo de la accion y el objeto solo se manda lo necesario
-            if(!nueva && !saveAs) modificarRed(nomArchivo, nNodos, aristas);
-            guardarRed(nNodos, aristas, saveAs);
+            if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
+            guardarRed(nNodos, aristas);
         }else if(objeto == "aristas"){
             agregarAristas(nNodos, aristas, nueva);
-            if(!nueva && !saveAs)  modificarRed(nomArchivo, nNodos, aristas);
-            guardarRed(nNodos, aristas, saveAs);
+            if(!nueva || !saveAs)  modificarRed(nomArchivo, nNodos, aristas);
+            guardarRed(nNodos, aristas);
 
         }
     }else if(accion == "eliminar"){
         if(objeto == "nodos"){
             eliminarNodos(nNodos, aristas);
-            if(!nueva && !saveAs) modificarRed(nomArchivo, nNodos, aristas);
-            guardarRed(nNodos, aristas, saveAs);
+            if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
+            guardarRed(nNodos, aristas);
         }else if(objeto == "aristas"){
-            eliminarAristas();
-            if(!nueva && !saveAs) modificarRed(nomArchivo, nNodos, aristas);
-            guardarRed(nNodos, aristas, saveAs);
+            eliminarAristas(nNodos, aristas);
+            if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
+            guardarRed(nNodos, aristas);
         }
     }
 }
@@ -46,6 +47,8 @@ bool verificarValor(int cont, int opc){
     }
     return true;
 }
+
+/* OPCIONES DE AGREGAR Y ELIMINAR DE LA RED */
 
 //Preguntar por los nodos que se quieren agregar
 
@@ -63,7 +66,7 @@ void agregarNodos(HashRed& nNodos, bool nueva){
 
     //Preguntar cuántos nodos se quieren agregar
     int numNodos;
-    cout << u8"\n\t Cuántos nodos quieres agregar: ";
+    cout << u8"\n\t Cuántos nodos deseas agregar: ";
     cin >> numNodos;
     
     //Preguntamos el nombre de cada nodo nuevo a agregar
@@ -116,14 +119,12 @@ void eliminarNodos(HashRed& nNodos, vector<Arista>& aristas){
     char resp;
     int idEliminar;
     do{
-        vector<int> lastId;
         cout << "\n\t Los nodos actuales en el archivo son: ";
         for(const auto& n: nNodos.getNodos()){
             cout << "\n\tId: " << n.id << " | Nombre: " << n.nombre;
-            lastId.push_back(n.id);
         }
 
-        cout << "\n\t Escribe el ID del nodo que quieres eliminar: ";
+        cout << "\n\t Escribe el ID del nodo que deseas eliminar: ";
         cin >> idEliminar;
 
         bool existe = false;
@@ -161,90 +162,152 @@ void eliminarNodos(HashRed& nNodos, vector<Arista>& aristas){
 
 //Eliminar aristas de una red
 
-void eliminarAristas(){
-    
+void eliminarAristas(HashRed& nNodos, vector<Arista>& aristas){
+    char resp;
+    int origenEliminar, destinoEliminar, pesoEliminar, aristaEliminar, nAristas = 1;
+    do{
+        cout << "\n\t Las aristas actuales en el archivo son: ";
+        for(const auto& a: aristas){
+            cout << "\n\t Origen: " << a.origen << " | Destino: " << a.destino << " | Peso: " << a.peso;
+            nAristas++;
+        }
+
+        do{
+            cout << "\n\t Esctiba el origen de la arista que desea eliminar: ";
+            cin >> origenEliminar;
+        }while(origenEliminar < 1 && origenEliminar > nAristas);
+
+        int cont = 1;
+        for(const auto& a: aristas){
+            if(a.origen == origenEliminar){ //Mostramos solo las aristas que tengan el origen seleccionado por el usuario
+                cout << "\n\t [" << cont << "]" <<" Origen: " << a.origen << " | Destino: " << a.destino << " | Peso: " << a.peso;
+                cont++;
+            }
+        }
+
+        do{
+            cout << "\n\n\t Elija la arista que desea eliminar: ";
+            cin >> aristaEliminar;
+        }while(aristaEliminar < 1 && aristaEliminar > cont);
+
+        //Buscamos la arista apoyandonos de cont
+        cont = 1;
+        for(const auto& a: aristas){
+            if(a.origen == origenEliminar){
+                if(cont == aristaEliminar){ //Mostramos solo las aristas que tengan el origen seleccionado por el usuario
+                    destinoEliminar = a.destino;
+                    pesoEliminar = a.peso;
+                    break;
+                }
+                cont++;
+            }
+        }
+        
+
+        //Se busca la aristas que tuvieran conexión con el nodo y también se eliminan
+        for(size_t i=0; i<aristas.size(); ++i){
+            if(aristas[i].origen == origenEliminar && aristas[i].destino == destinoEliminar && aristas[i].peso == pesoEliminar){
+                aristas.erase(aristas.begin() + i);
+                i--;
+            }
+        }
+
+        cout << "\n\t La arista con: \n" << 
+        "\t Origen: " << origenEliminar << " | Destino: " << destinoEliminar << " | Peso: " << pesoEliminar;
+        cout << "\n\n\t Ha sido eliminada.";
+        
+        do{
+            cout << "\n\t Desea eliminar otra arista? [S/N]: ";
+            cin.ignore();
+            cin >> resp;
+        }while(resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
+    }while(resp == 's' || resp == 'S');
 }
 
-//Eliminar vehiculos
-
-void eliminarVehiculos(){
-
-}
-
-/* OPCIONES PARA RED */
-
-/* CREAR RED DESDE CERO O GUARDA COMO UNA NUEVA A PARTIR DE OTRA*/
-bool guardarRed(HashRed& nNodos, vector <Arista>& aristas, bool saveAs){
+/* (SOBRECARGADA) CREAR RED DESDE CERO*/
+bool guardarRed(){
     SetConsoleOutputCP(CP_UTF8);
     if(!verificarCRed){
         crearContRed();
     }
 
     fstream red;
-    if(!saveAs){
-        HashRed nNodos;
-        vector<Arista> aristas;
-        int cont = contRed(true);
-        string nomArchivo = "red" + to_string(cont) + ".csv";
+    HashRed nNodos;
+    vector<Arista> aristas;
+    int cont = contRed(true);
+    string nomArchivo = "red" + to_string(cont) + ".csv";
 
-        //Preguntar por los nodos
-        agregarNodos(nNodos, true);
+    //Preguntar por los nodos
+    agregarNodos(nNodos, true);
 
-        //Preguntar por las aristas
-        agregarAristas(nNodos, aristas, true);
+    //Preguntar por las aristas
+    agregarAristas(nNodos, aristas, true);
 
-        //Abrir el archivo de la red
-        red.open(nomArchivo);
-        if(!red){
-            cout << u8"\n\t El archivo no se abrió correctamente.";
-            return false;
-        }
+    //Abrir el archivo de la red
+    red.open(nomArchivo);
+    if(!red){
+        cout << u8"\n\t El archivo no se abrió correctamente.";
+        return false;
+    }
 
-        /* GUARDAR LOS NODOS EN EL CSV */
-        //Encabezados
-        red << "#NODOS\n";
-        red << "N;idNodo;nombre\n";
+    /* GUARDAR LOS NODOS EN EL CSV */
+    //Encabezados
+    red << "#NODOS\n";
+    red << "N;idNodo;nombre\n";
 
-        for(const Nodo& n: nNodos.getNodos()){
-            red << "N;" << n.id << ";" << n.nombre << "\n";
-        }
+    for(const Nodo& n: nNodos.getNodos()){
+        red << "N;" << n.id << ";" << n.nombre << "\n";
+    }
 
-        /* GUARDAR LAS ARISTAS EN EL CSV */
-        //Encabezados
-        red << "#ARISTAS (dirigidas)\n";
-        red << "E;origen;destino;peso\n";
+    /* GUARDAR LAS ARISTAS EN EL CSV */
+    //Encabezados
+    red << "#ARISTAS (dirigidas)\n";
+    red << "E;origen;destino;peso\n";
 
-        for(const Arista& a: aristas){
-            red << "E;" << a.origen << ";" << a.destino << ";" << a.peso << "\n";
-        }
-    }else{
-        int cont = contRed(true);
-        string nomArchivo = "red" + to_string(cont) + ".csv";
+    for(const Arista& a: aristas){
+        red << "E;" << a.origen << ";" << a.destino << ";" << a.peso << "\n";
+    }
+    
+    red.close();
+    cout << u8"\n\tEl archivo fue guardado correctamente.";
+    return true;
+}
 
-        //Abrir el archivo de la red
-        red.open(nomArchivo);
-        if(!red){
-            cout << u8"\n\t El archivo no se abrió correctamente.";
-            return false;
-        }
+/* (SOBRECARGADA) GUARDAR COMO UNA NUEVA A PARTIR DE OTRA*/
+bool guardarRed(HashRed& nNodos, vector <Arista>& aristas){
+    SetConsoleOutputCP(CP_UTF8);
+    if(!verificarCRed){
+        crearContRed();
+    }
 
-        /* GUARDAR LOS NODOS EN EL CSV */
-        //Encabezados
-        red << "#NODOS\n";
-        red << "N;idNodo;nombre\n";
+    fstream red;
+    
+    int cont = contRed(true);
+    string nomArchivo = "red" + to_string(cont) + ".csv";
 
-        for(const Nodo& n: nNodos.getNodos()){
-            red << "N;" << n.id << ";" << n.nombre << "\n";
-        }
+    //Abrir el archivo de la red
+    red.open(nomArchivo);
+    if(!red){
+        cout << u8"\n\t El archivo no se abrió correctamente.";
+        return false;
+    }
 
-        /* GUARDAR LAS ARISTAS EN EL CSV */
-        //Encabezados
-        red << "#ARISTAS (dirigidas)\n";
-        red << "E;origen;destino;peso\n";
+    /* GUARDAR LOS NODOS EN EL CSV */
+    //Encabezados
+    red << "#NODOS\n";
+    red << "N;idNodo;nombre\n";
 
-        for(const Arista& a: aristas){
-            red << "E;" << a.origen << ";" << a.destino << ";" << a.peso << "\n";
-        }
+    for(const Nodo& n: nNodos.getNodos()){
+        red << "N;" << n.id << ";" << n.nombre << "\n";
+    }
+
+    /* GUARDAR LAS ARISTAS EN EL CSV */
+    //Encabezados
+    red << "#ARISTAS (dirigidas)\n";
+    red << "E;origen;destino;peso\n";
+
+    for(const Arista& a: aristas){
+        red << "E;" << a.origen << ";" << a.destino << ";" << a.peso << "\n";
     }
 
     red.close();
@@ -285,12 +348,23 @@ void modificarRed(const string nomArchivo, HashRed& nNodos, vector <Arista>& ari
 }
 
 /* OPCIONES PARA VEHICULOS */
+
+
+//Eliminar vehiculos
+void agregarVehiculos(){
+
+}
+
+void eliminarVehiculos(){
+
+}
+
 bool crearNuevoVehiculos(){
 
 }
 
 bool modificarArchivoVehiculos(){
-    if(!verficarCVehiculos) return false;
+    if(!verificarCVehiculos) return false;
     int cont = contVehiculos();
 }
 

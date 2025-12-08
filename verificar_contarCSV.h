@@ -66,13 +66,13 @@ int crearContVehiculos(){
     return 1;
 }
 
-bool verficarCVehiculos(){
+bool verificarCVehiculos(){
     fstream cVehiculos("ContVehiculos.dat", ios::binary|ios::in);
     if(!cVehiculos) return false;
     return true;
 }
 
-int contVehiculos(){
+int contVehiculos(bool aumentar){
     fstream cVehiculos;
     int cont = 0;
     cVehiculos.open("ContVehiculos.dat", ios::binary|ios::in|ios::out);
@@ -88,10 +88,12 @@ int contVehiculos(){
         cont = 0;
     }
 
-    cont++;
-    cVehiculos.seekp(0, ios::end);
-    cVehiculos.write(reinterpret_cast<char*>(&cont), sizeof(int));
-    cVehiculos.close();
+    if(aumentar){
+        cont++;
+        cVehiculos.seekp(0, ios::end);
+        cVehiculos.write(reinterpret_cast<char*>(&cont), sizeof(int));
+        cVehiculos.close();
+    }
 
     return cont;
 }
