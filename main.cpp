@@ -7,8 +7,6 @@
 using namespace std;
 
 //variables globales
-Grafo grafo(10, true);
-HashVehiculos hash(10);
 
 void iniciarPorDefecto(const string, HashRed&, vector<Arista>&, Grafo&);
 void red_Nodos_Hash(HashRed&, vector<Arista>&, Grafo&);
@@ -22,9 +20,9 @@ void nombreArchivoVehiculos(string&);
 
 int main(){
     SetConsoleOutputCP(CP_UTF8);
-    HashRed hashRed(100);
+    HashRed hashRed(10);
     vector<Arista> aristas;
-    Grafo grafo(100, true);
+    Grafo grafo(10, true);
 
     iniciarPorDefecto("red.csv", hashRed, aristas, grafo);
 
@@ -62,7 +60,7 @@ int main(){
 void iniciarPorDefecto(const string nomArchivo, HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo){
     csvRed(nomArchivo, hashRed, aristas);
     //Inserción de los nodos en el grafo
-    for (size_t i = 0; i < 100; i++) {
+    for (size_t i = 0; i < 10; i++) {
         Nodo* n = hashRed.buscar(i);
         if (n != nullptr) {
             grafo.altaNodo(n->id, n->nombre);
@@ -105,10 +103,10 @@ void red_Nodos_Hash(HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo){
                 aristas.clear();
                 csvRed(archivo, hashRed, aristas);
                 //reiniciamos el grafo
-                grafo = Grafo(100, true);
+                grafo = Grafo(10, true);
             
                 //insertamos los nodos en el grafo
-                for (size_t i = 0; i < 100; i++) {
+                for (size_t i = 0; i < 10; i++) {
                     Nodo* n = hashRed.buscar(i);
                     if (n != nullptr) {
                         grafo.altaNodo(n->id, n->nombre);

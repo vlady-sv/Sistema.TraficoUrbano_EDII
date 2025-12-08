@@ -86,7 +86,6 @@ void agregarNodos(HashRed& nNodos, bool nueva){
 //Preguntar por las aristas entre nodos
 
 void agregarAristas(const HashRed& nNodos, vector<Arista>& aristas){
-    //////////////////Considrerar agregar mostrar las aristas
     /* Preguntar nodo por nodo si se quiere agregar una arista entre ellos*/
     for(const auto& origen: nNodos.getNodos()){
         cout << "\n\t Nodo origen: " << origen.id << " (" << origen.nombre << ")\n";
@@ -245,7 +244,7 @@ void guardarRed(){
     agregarAristas(nNodos, aristas);
 
     //Abrir el archivo de la red
-    red.open(nomArchivo);
+    red.open(nomArchivo, ios::out);
     if(!red){
         cout << u8"\n\t El archivo no se abrió correctamente.";
         return;
@@ -285,7 +284,7 @@ void guardarRed(HashRed& nNodos, vector <Arista>& aristas){
     string nomArchivo = "red" + to_string(cont) + ".csv";
 
     //Abrir el archivo de la red
-    red.open(nomArchivo);
+    red.open(nomArchivo, ios::out);
     if(!red){
         cout << u8"\n\t El archivo no se abrió correctamente.";
         return;
@@ -439,8 +438,10 @@ void agregarVehiculos(const string nomArchivo){
     cin >> nVehiculos;
     for(int i=idInicial; i<=nVehiculos; ++i){
         cout << u8"\n\t -- Vehículo " << i << " --";
-        nuevosVehiculos[i].id = i;
-        llenarVehiculos(nuevosVehiculos[i], vehiculos);
+        Vehiculo v;
+        v.id = i;
+        llenarVehiculos(v, vehiculos);
+        nuevosVehiculos.push_back(v);
     }
 
     fstream archVh;
@@ -594,12 +595,14 @@ void crearNuevoVehiculos(){
 
     for(int i=0; i<nVehiculos; ++i){
         cout << "\n\t -- Vehiculo " << i+1 << " --";
-        vehiculos[i].id = i;
-        llenarVehiculos(vehiculos[i], vehiculos);
+        Vehiculo v;
+        v.id= i;
+        llenarVehiculos(v, vehiculos);
+        vehiculos.push_back(v);
     }
 
     fstream archVh;
-    archVh.open(nomArchivo);
+    archVh.open(nomArchivo, ios::out);
     if(!archVh){
         cout << u8"\n\t El archivo no se abrió correctamente.";
         return;
