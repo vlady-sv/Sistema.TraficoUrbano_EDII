@@ -191,13 +191,16 @@ void redGrafo(){
                 break;
             case 2:{
                 int u, v; float w;
-                cout << u8"Nodo origen (ID): "; cin >> u;
-                cout << u8"Nodo destino (ID): "; cin >> v;
-                cout << u8"Peso/Distancia: "; cin >> w;
+                cout << u8"Nodo origen (ID): "; 
+                cin >> u;
+                cout << u8"Nodo destino (ID): "; 
+                cin >> v;
+                cout << u8"Peso: "; 
+                cin >> w;
                 if (!grafo.existeNodo(u) || !grafo.existeNodo(v)){
                     cout << u8"\n\t Error: uno o ambos nodos no existen.\n";
                 }else if (u == v){
-                    cout << u8"\n\t Error: No se permiten bucles (u → u).\n";
+                    cout << u8"\n\t Error: No se permiten bucles (u -> u).\n";
                 }else if (grafo.existeAristas(u, v)){
                     cout << u8"\n\t Ya existe una arista de " << u << " a " << v << "\n";
                     char resp;
