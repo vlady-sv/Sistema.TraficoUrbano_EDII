@@ -6,10 +6,10 @@
 using namespace std;
 
 
-struct Arista {
+struct Aristas {
     int nodoDestino;
     float peso;
-    Arista* sig;
+    Aristas* sig;
 };
 
 
@@ -74,7 +74,7 @@ public:
 //CLASE GRAFO
 class Grafo {
 private:
-    vector<Arista*> adj;       // lista de adyacencia
+    vector<Aristas*> adj;       // lista de adyacencia
     vector<string> nombres;    // nombre de los nodos
     vector<bool> activo;       // TRUE = nodo existe
     bool esDirigido;
@@ -108,44 +108,44 @@ public:
     void eliminarNodo(size_t u){
         if(!existeNodo(u)) return;
 
-        //borrar aristas salientes
-        Arista* a = adj[u];
+        //borrar Aristass salientes
+        Aristas* a = adj[u];
         while(a){
-            Arista* tmp = a;
+            Aristas* tmp = a;
             a = a->sig;
             delete tmp;
         }
         adj[u] = nullptr;
 
-        //borrar aristas entrantes
+        //borrar Aristass entrantes
         for(size_t i = 0; i < adj.size(); i++){
             if(activo[i])
-                eliminarArista(i, u);
+                eliminarAristas(i, u);
         }
         activo[u] = false;
         nombres[u].clear();
         cout << "Nodo " << u << " eliminado.\n";
     }
 
-    // agregar arista
-    void agregarArista(size_t u, size_t v, float w){
+    // agregar Aristas
+    void agregarAristas(size_t u, size_t v, float w){
         if(!existeNodo(u) || !existeNodo(v)) return;
 
-        Arista* nueva = new Arista{(int)v, w, adj[u]};
+        Aristas* nueva = new Aristas{(int)v, w, adj[u]};
         adj[u] = nueva;
 
         if(!esDirigido){
-            Arista* rev = new Arista{(int)u, w, adj[v]};
+            Aristas* rev = new Aristas{(int)u, w, adj[v]};
             adj[v] = rev;
         }
     }
 
-    // eliminar arista (u, v)
-    void eliminarArista(size_t u, size_t v){
+    // eliminar Aristas (u, v)
+    void eliminarAristas(size_t u, size_t v){
         if(!existeNodo(u) || !existeNodo(v)) return;
 
-        Arista* a = adj[u];
-        Arista* prev = nullptr;
+        Aristas* a = adj[u];
+        Aristas* prev = nullptr;
 
         while(a){
             if(a->nodoDestino == (int)v){
@@ -174,11 +174,11 @@ public:
         }
     }
 
-    // verificar si existe arista u->v
-    bool existeArista(size_t u, size_t v) const {
+    // verificar si existe Aristas u->v
+    bool existeAristas(size_t u, size_t v) const {
         if(!existeNodo(u) || !existeNodo(v)) return false;
 
-        Arista* a = adj[u];
+        Aristas* a = adj[u];
         while(a){
             if(a->nodoDestino == (int)v)
                 return true;
@@ -197,7 +197,7 @@ public:
 
             cout << u << " [" << nombres[u] << "] : ";
 
-            Arista* a = adj[u];
+            Aristas* a = adj[u];
             while(a){
                 if(activo[a->nodoDestino])
                     cout << "(" << a->nodoDestino << ", peso=" << a->peso << ") ";
@@ -230,7 +230,7 @@ public:
 
                 float val = INF;
 
-                Arista* a = adj[i];
+                Aristas* a = adj[i];
                 while(a){
                     if(a->nodoDestino == (int)j){
                         val = a->peso;
@@ -274,7 +274,7 @@ public:
 
             if(distU != dist[u]) continue;
 
-            Arista* a = adj[u];
+            Aristas* a = adj[u];
             while(a){
                 size_t v = a->nodoDestino;
                 float w = a->peso;
@@ -333,7 +333,7 @@ public:
             visitado[u] = true;
             cout << u << " (" << nombres[u] << ") ";
 
-            for (Arista* a = adj[u]; a; a = a->sig) {
+            for (Aristas* a = adj[u]; a; a = a->sig) {
                 size_t v = a->nodoDestino;
                 if (existeNodo(v) && !visitado[v]) {
                     dfsRec(v);
@@ -370,7 +370,7 @@ public:
             size_t u = cola[frente++];
             cout << u << " (" << nombres[u] << ") ";
 
-            for (Arista* a = adj[u]; a; a = a->sig) {
+            for (Aristas* a = adj[u]; a; a = a->sig) {
                 size_t v = a->nodoDestino;
                 if (existeNodo(v) && !visitado[v]) {
                     visitado[v] = true;

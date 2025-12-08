@@ -1,8 +1,10 @@
 #ifndef MAIN
 #define MAIN
 #include "Grafo.h"
-#include "TablasHash.h"
+#include "modificarCSV.h"
 #include <windows.h>
+
+
 using namespace std;
 
 //variables globales
@@ -13,6 +15,7 @@ void red_Nodos_Hash();
 void mostrar_Grafo();
 void recorridos();
 void vehiculos();
+void nombreArchivo(string&, bool&, const string);
 
 int main(){
     SetConsoleOutputCP(CP_UTF8);
@@ -53,28 +56,21 @@ void red_Nodos_Hash(){
         cout << "\n-----------------------------------------------";
         cout << u8"\n\t\t\t ===> Red, Nodos y Tablas Hash <====";
         cout << "\n\t [1] Cargar Red.";
-        cout << "\n\t [2] Guardar Red.";
-        cout << "\n\t [3] Alta de Nodo.";
-        cout << "\n\t [4] Alta de Arista.";
-        cout << "\n\t [5] Baja de Nodo.";
-        cout << "\n\t [6] Baja de Arista.";
+        cout << "\n\t [2] Crear nueva Red.";
+        cout << "\n\t [3] Alta de Nodos.";
+        cout << "\n\t [4] Alta de Aristas.";
+        cout << "\n\t [5] Baja de Nodos.";
+        cout << "\n\t [6] Baja de Aristas.";
         cout << u8"\n\t [0] Volver al menú principal.";
         cout << u8"\n\n\t Elige una opción: ";
         cin >> opc;
 
         switch(opc){
-            case 1: 
+            case 1:{ 
                 string archivo;
-                //mostrar archivos existentes
-                cout << "\n\t Archivos de Redes de Nodos: ";
-                for(int i=1; i<cont; i++){
-                    if(i==1){
-                        cout << "\n\t [" << i << "] red.csv";
-                    }
-                    cout << "\n\t [" << i << "] red" << i << ".csv";
-                }
-                cout << u8"\n\t Escriba nombre del archivo CSV: ";
-                cin >> archivo;
+                bool saveAs;
+                int cont;
+                nombreArchivo(archivo, saveAs, "cargar");
             
                 HashRed hashRed(100);
                 vector<Arista> aristas;
@@ -94,50 +90,42 @@ void red_Nodos_Hash(){
                     grafo.agregarArista(a.origen, a.destino, a.peso);
                 }
                 cout << u8"\n\t Red cargada correctamente desde " << archivo << "\n";
-                break;
-            case 2: 
-                break;
-            case 3: 
-                string nombre;
-                cout << "Nombre: "; 
-                cin.ignore();
-                getline(cin, nombre);
-                grafo.altaNodo(nombre);
-                break;
-            case 4: 
-                int u, v; float w;
-                cout << "Nodo origen: "; cin >> u;
-                cout << "Nodo destino: "; cin >> v;
-                cout << "Peso: "; cin >> w;
-                if (!grafo.existeNodo(u) || !grafo.existeNodo(v)){
-                    cout << u8"\n\t Error: uno o ambos nodos no existen.\n";
-                }else{
-                    grafo.agregarArista(u, v, w);
-                    cout << u8"\n\t Arista agregada correctamente.\n";
                 }
                 break;
-            case 5:
-                size_t id;
-                cout << "ID del nodo a eliminar: ";
-                cin >> id;
-                if (!grafo.existeNodo(id)) {
-                    cout << "Error: nodo " << id << " no existe o ya fue eliminado.\n";
-                } else {
-                    grafo.eliminarNodo(id); 
-                    cout << "Nodo " << id << "eliminado correctamente.\n";
+            case 2:{
+                    guardarRed();
+                } 
+                break;
+            case 3:{
+                    string nombre;
+                    bool saveAs;
+                    nombreArchivo(nombre, saveAs, "agregar");
+                    distribuir(nombre, false, saveAs, "agregar","nodos");
                 }
                 break;
-            case 6:
-                int u, v;
-                cout << "Nodo origen: "; cin >> u;
-                cout << "Nodo destino: "; cin >> v;
-                if (grafo.eliminarArista(u, v)){
-                    cout << u8"Arista eliminada.\n";
-                }else{
-                    cout << u8"No existía esa arista.\n";
-                }    
+            case 4:{
+                    string nombre;
+                    bool saveAs;
+                    nombreArchivo(nombre, saveAs, "agregar");
+                    distribuir(nombre, false, saveAs, "agregar","aristas");
+                }
                 break;
-            case 0: break;
+            case 5:{
+                    string nombre;
+                    bool saveAs;
+                    nombreArchivo(nombre, saveAs, "eliminar");
+                    distribuir(nombre, false, saveAs, "eliminar","nodos");
+                }   
+                break;
+            case 6:{
+                    string nombre;
+                    bool saveAs;
+                    nombreArchivo(nombre, saveAs, "eliminar");
+                    distribuir(nombre, false, saveAs, "eliminar","aristas");    
+                }
+                break;
+            case 0: cout << u8"\n\t Regresando al menú principal...\n\n";
+                break;
             default: cout << u8"\n\n\t Opción invalida.\n";
                 break;
         }
@@ -185,7 +173,7 @@ void recorridos(){
         cin >> opc;
 
         switch(opc){
-            case 1: 
+            case 1:{ 
                 int origen, destino;
                 cout << "\nOrigen: "; cin >> origen;
                 cout << "Destino: "; cin >> destino;
@@ -197,19 +185,21 @@ void recorridos(){
                 vector<int> parent;
                 grafo.dijkstra(origen, dist, parent);
                 grafo.imprimirCamino(origen, destino, parent, dist);
+                }
                 break;
-            case 2: 
+            case 2:{
                 int inicio;
                 cout << "\nNodo inicial: ";
                 cin >> inicio;
                 if (!grafo.existeNodo(inicio)){
                     cout << u8"Error: nodo no existe.\n";
                 }else{
-                    cout << u8"\nRecorrido BFS:\n"
+                    cout << u8"\nRecorrido BFS:\n";
                     grafo.BFS(inicio);
                 }
+                }
                 break;
-            case 3: 
+            case 3:{
                 int inicio;
                 cout << "\nNodo inicial: ";
                 cin >> inicio;
@@ -219,6 +209,7 @@ void recorridos(){
                     cout << u8"\nRecorrido DFS:\n";
                     grafo.DFS(inicio);
                     cout << "\n";
+                }
                 }
                 break;
             case 0: cout << "\n\t Saliendo del programa....";
@@ -255,6 +246,47 @@ void vehiculos(){
                 break;
         }
     }while(opc != 0);
+}
+
+void nombreArchivo(string &nomArchivo, bool& saveAs, const string accion){
+    if(!verificarCRed){
+        crearContRed();
+    }
+    int cont = contRed(false);
+
+    cout << "\n\t Archivos de Redes de Nodos: ";
+    for(int i=1; i<cont; i++){
+        if(i==1){
+            cout << "\n\t [" << i << "] red.csv";
+        }
+        cout << "\n\t [" << i << "] red" << i << ".csv";
+    }
+
+    int opc;
+    do{
+        cout << u8"\n\t Qué archivo desea " << accion << ": ";
+        cin >> opc;
+    }while(opc < 0 && opc >= cont);
+
+    //Construir el nombre del archivo de la red seleccionado por el usuario
+    if(opc == 1)
+        nomArchivo = "red.csv";
+    else
+        nomArchivo = "red" + to_string(opc) + ".csv";
+
+    if(accion == "agregar" || accion == "eliminar"){
+        do{
+            cout << "\n\t [1] Modificar archivo y guardar.";
+            cout << "\n\t [2] Modificar archivo y guardar como uno nuevo.";
+            cout << u8"\n\n\t Escoja una opción para guardar las modificaciones: ";
+            cin >> opc;
+        }while(opc < 1 && opc > 2);
+
+        if(opc == 1) saveAs = false;
+        else saveAs = true;
+    }
+
+    
 }
 
 #endif

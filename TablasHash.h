@@ -63,6 +63,18 @@ class HashRed{
             }
         }
 
+        bool eliminar(int id){
+            size_t idx = hashID(id);
+
+            for(auto i = tabla[idx].begin(); i != tabla[idx].end(); ++i){
+                if(i->id == id){
+                    tabla[idx].erase(i);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         vector<Nodo> getNodos()const{
             vector<Nodo> nodos;
 
