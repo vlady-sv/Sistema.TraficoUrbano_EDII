@@ -13,6 +13,8 @@ Grafo grafo(100, true);
 HashVehiculos hash(100);
 
 void red_Nodos_Hash();
+void redArchivo();
+void redGrafo();
 void mostrar_Grafo();
 void recorridos();
 void vehiculos();
@@ -58,11 +60,8 @@ void red_Nodos_Hash(){
         cout << "\n-----------------------------------------------";
         cout << u8"\n\t\t\t ===> Red, Nodos y Tablas Hash <====";
         cout << "\n\t [1] Cargar Red.";
-        cout << "\n\t [2] Crear nueva Red.";
-        cout << "\n\t [3] Alta de Nodos.";
-        cout << "\n\t [4] Alta de Aristas.";
-        cout << "\n\t [5] Baja de Nodos.";
-        cout << "\n\t [6] Baja de Aristas.";
+        cout << "\n\t [2] Opciones de Red usando Archivo.";
+        cout << "\n\t [3] Opciones de Red usando Grafo.";
         cout << u8"\n\t [0] Volver al menú principal.";
         cout << u8"\n\n\t Elige una opción: ";
         cin >> opc;
@@ -95,35 +94,102 @@ void red_Nodos_Hash(){
                 }
                 break;
             case 2:{
-                    guardarRed();
+                    redArchivo();
                 } 
                 break;
             case 3:{
+                    redGrafo();
+                }
+                break;
+            case 0: cout << u8"\n\t Regresando al menú principal...\n\n";
+                break;
+            default: cout << u8"\n\n\t Opción invalida.\n";
+                break;
+        }
+    }while(opc != 0);
+}
+
+void redArchivo(){
+    int opc;
+
+    do{
+        cout << "\n-----------------------------------------------";
+        cout << u8"\n\t\t\t ===> Nodos y Aristas (Manejo desde Archivos) <====";
+        cout << "\n\t [1] Crear nueva Red.";
+        cout << "\n\t [2] Alta de Nodos.";
+        cout << "\n\t [3] Alta de Aristas.";
+        cout << "\n\t [4] Baja de Nodos.";
+        cout << "\n\t [5] Baja de Aristas.";
+        cout << u8"\n\t [0] Volver al menú principal.";
+        cout << u8"\n\n\t Elige una opción: ";
+        cin >> opc;
+
+        switch(opc){
+            case 1:{
+                    guardarRed();
+                } 
+                break;
+            case 2:{
                     string nombre;
                     bool saveAs;
                     nombreArchivoRed(nombre, saveAs, "agregar");
                     distribuirRed(nombre, false, saveAs, "agregar","nodos");
                 }
                 break;
-            case 4:{
+            case 3:{
                     string nombre;
                     bool saveAs;
                     nombreArchivoRed(nombre, saveAs, "agregar");
                     distribuirRed(nombre, false, saveAs, "agregar","aristas");
                 }
                 break;
-            case 5:{
+            case 4:{
                     string nombre;
                     bool saveAs;
                     nombreArchivoRed(nombre, saveAs, "eliminar");
                     distribuirRed(nombre, false, saveAs, "eliminar","nodos");
                 }   
                 break;
-            case 6:{
+            case 5:{
                     string nombre;
                     bool saveAs;
                     nombreArchivoRed(nombre, saveAs, "eliminar");
                     distribuirRed(nombre, false, saveAs, "eliminar","aristas");    
+                }
+                break;
+            case 0: cout << u8"\n\t Regresando al menú principal...\n\n";
+                break;
+            default: cout << u8"\n\n\t Opción invalida.\n";
+                break;
+        }
+    }while(opc != 0);
+}
+
+void redGrafo(){
+    int opc;
+
+    do{
+        cout << "\n-----------------------------------------------";
+        cout << u8"\n\t\t\t ===> Nodos y Aristas (Manejo desde Grafo) <====";
+        cout << "\n\t [1] Alta de Nodos.";
+        cout << "\n\t [2] Alta de Aristas.";
+        cout << "\n\t [3] Baja de Nodos.";
+        cout << "\n\t [4] Baja de Aristas.";
+        cout << u8"\n\t [0] Volver al menú principal.";
+        cout << u8"\n\n\t Elige una opción: ";
+        cin >> opc;
+
+        switch(opc){
+            case 1:{
+                }
+                break;
+            case 2:{
+                }
+                break;
+            case 3:{
+                }   
+                break;
+            case 4:{
                 }
                 break;
             case 0: cout << u8"\n\t Regresando al menú principal...\n\n";
