@@ -1,5 +1,6 @@
 #ifndef MAIN
 #define MAIN
+#include <ctime>
 #include "Grafo.h"
 #include "modificarCSV.h"
 #include <windows.h>
@@ -184,8 +185,12 @@ void recorridos(){
                 }
                 vector<float> dist;
                 vector<int> parent;
+                //medir tiempo de ejecucion
+                clock_t inicio = clock();
                 grafo.dijkstra(origen, dist, parent);
-                grafo.imprimirCamino(origen, destino, parent, dist);
+                clock_t fin = clock();
+                double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
+                cout << "\n\t Tiempo de ejecución de Dijkstra: "<< tiempo << " segundos\n";
                 }
                 break;
             case 2:{
