@@ -84,7 +84,7 @@ int contVehiculos(bool aumentar){
     }
 
     cVehiculos.seekg(-sizeof(int), ios::end);
-    if(!(cVehiculos.read(reinterpret_cast<char*>(&cont), sizeof(int)))){
+    if(!cVehiculos.read(reinterpret_cast<char*>(&cont), sizeof(int))){
         cVehiculos.clear();
         cont = 0;
     }

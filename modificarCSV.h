@@ -42,6 +42,17 @@ void distribuirRed(const string nomArchivo, bool nueva, bool saveAs, string acci
     }
 }
 
+//Verificación número válido
+bool verificarValor(int valor){ //Para enteros
+    if(!isdigit(valor)) return false;
+    return true;
+}
+
+bool verificarValor(float valor){ //Para flotantes/decimales
+    if(!isdigit(valor)) return false;
+    return true;
+}
+
 //Verificacion de valores correctos
 bool verificarValor(int cont, int opc){
     if(opc < 0 || opc >= cont){
@@ -72,14 +83,15 @@ void agregarNodos(HashRed& nNodos, bool nueva){
     cin >> numNodos;
     
     //Preguntamos el nombre de cada nodo nuevo a agregar
-    for(int i=lastId; i<numNodos; i++){
+    for(int i=0; i<numNodos; i++){
         Nodo n;
-        n.id = i;
+        n.id = lastId;
 
-        cout << "\n\t Dame el nombre del nodo " << i << ": ";
+        cout << "\n\t Dame el nombre del nodo " << lastId << ": ";
         cin >> n.nombre;
 
         nNodos.insertar(n);
+        lastId++;
     }
 }
 
@@ -436,12 +448,13 @@ void agregarVehiculos(const string nomArchivo){
     int idInicial = lastId + 1;
     cout << u8"\n\t Cuántos vehículos desea ingresar: ";
     cin >> nVehiculos;
-    for(int i=idInicial; i<=nVehiculos; ++i){
-        cout << u8"\n\t -- Vehículo " << i << " --";
+    for(int i=0; i<nVehiculos; ++i){
+        cout << u8"\n\t -- Vehículo " << idInicial << " --";
         Vehiculo v;
-        v.id = i;
+        v.id = idInicial;
         llenarVehiculos(v, vehiculos);
         nuevosVehiculos.push_back(v);
+        idInicial++;
     }
 
     fstream archVh;
@@ -584,12 +597,13 @@ void crearNuevoVehiculos(){
     if(!verificarCVehiculos()){
         crearContVehiculos();
     }
-    int cont = contVehiculos(false);
+    int cont = contVehiculos(true);
     string nomArchivo = "vehiculos" + to_string(cont) + ".csv";
 
     HashVehiculos hashVh;
     vector <Vehiculo> vehiculos;
     int nVehiculos;
+
     cout << u8"\n\t Cuántos vehículos desea ingresar: ";
     cin >> nVehiculos;
 

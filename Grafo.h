@@ -81,12 +81,13 @@ class Grafo {
 private:
     vector<Aristas*> adj;       // lista de adyacencia
     vector<string> nombres;    // nombre de los nodos
-    vector<bool> activo;       // TRUE = nodo existe
+    vector<bool> activo;       // TRUE = nodo creado
+    vector<bool> auxActivo;    // True el nodo además de estar creado contiene elementos válidos
     bool esDirigido;
 
 public:
 
-    Grafo(size_t n, bool dirigido = true) : adj(n, nullptr), nombres(n, ""), activo(n, true), esDirigido(dirigido) {}
+    Grafo(size_t n, bool dirigido = true) : adj(n, nullptr), nombres(n, ""), activo(n, true), auxActivo(n, false), esDirigido(dirigido) {}
 
     size_t numVertices() const { return adj.size(); }
 
@@ -98,26 +99,23 @@ public:
     void altaNodo(const string& nombre){
         //para agregar nodo en el primer espacio disponible, busca un "hueco"
         for (size_t i = 0; i < activo.size(); i++) {
-            if (!activo[i]) {
-                activo[i] = true;
+            if (!auxActivo[i]) {
+                auxActivo[i] = true;
                 nombres[i] = nombre;
                 adj[i] = nullptr;
-                cout << "Nodo creado con ID = " << i << " (reusado)\n";
+                cout << "\n\t Nodo creado con ID = " << i << "\n";
                 return;
             }
         }
-        //por si no hay "huecos", entonces incerta al final
-        adj.push_back(nullptr);
-        nombres.push_back(nombre);
-        activo.push_back(true);
-
-        cout << "Nodo creado con ID = " << adj.size()-1 << endl;
+        cout << u8"\n\t Lo siento el límite de capacidad de este grafo ha sido alcanzado.";
     }
 
     // asignar nombre al nodo (opcional para archivos)
     void altaNodo(size_t id, const string& nombre){
-        if(existeNodo(id))
+        if(existeNodo(id)){
             nombres[id] = nombre;
+            auxActivo[id] = true;
+        }
     }
 
     // eliminar nodo/baja
@@ -138,9 +136,9 @@ public:
             if(activo[i])
                 eliminarAristas(i, u);
         }
-        activo[u] = false;
+        auxActivo[u] = false;
         nombres[u].clear();
-        cout << "Nodo " << u << " eliminado.\n";
+        cout << "\n\t Nodo " << u << " eliminado.\n";
     }
 
     // agregar Aristas
@@ -206,17 +204,17 @@ public:
 
     // imprimir lista de adyacencia   
     void imprimirLista() const {
-        cout << "\nLista de adyacencia\n";
+        cout << "\n\t\t Lista de adyacencia\n";
 
         for(size_t u = 0; u < numVertices(); u++){
             if(!activo[u]) continue;
 
-            cout << u << " [" << nombres[u] << "] : ";
+            cout << "\t " << u << " [" << nombres[u] << "] : ";
 
             Aristas* a = adj[u];
             while(a){
                 if(activo[a->nodoDestino])
-                    cout << "(" << a->nodoDestino << ", peso=" << a->peso << ") ";
+                    cout << " (" << a->nodoDestino << ", peso=" << a->peso << ") ";
                 a = a->sig;
             }
             cout << "\n";
@@ -228,7 +226,7 @@ public:
     void imprimirMatriz() const {
         const float INF = 1e9;
 
-        cout << "\nMatriz de adyacencia:\n";
+        cout << "\n\t\t Matriz de adyacencia:\n";
 
         cout << setw(8) << "";
         for(size_t j = 0; j < numVertices(); j++){
@@ -306,16 +304,16 @@ public:
     }
     
     //imprimir camino (bonito)
-    void imprimirCamino(size_t origen, size_t destino, const vector<int>& parent,const vector<float>& dist) const {
+    bool imprimirCamino(size_t origen, size_t destino, const vector<int>& parent,const vector<float>& dist) const {
 
         if(destino >= numVertices() || !activo[destino]){
-            cout << "Destino inválido.\n";
-            return;
+            cout << "\n\t Destino inválido.\n";
+            return false;
         }
 
         if(dist[destino] == 1e9){
-            cout << "No existe camino.\n";
-            return;
+            cout << "\n\t No existe camino.\n";
+            return false;
         }
 
         vector<size_t> camino;
@@ -324,7 +322,7 @@ public:
 
         reverse(camino.begin(), camino.end());
 
-        cout << "\nCamino mínimo " << origen
+        cout << "\n\t Camino mínimo " << origen
              << " -> " << destino << ": ";
 
         for(size_t i = 0; i < camino.size(); i++){
@@ -332,18 +330,20 @@ public:
             if(i + 1 < camino.size()) cout << " -> ";
         }
 
-        cout << "\nCosto total: " << dist[destino] << "\n";
+        cout << "\n\t Costo total: " << dist[destino] << "\n";
+
+        return true;
     }
 
     // Recorrido DFS
     void DFS(size_t inicio) const {
         if (!existeNodo(inicio)) {
-            cout << "Nodo " << inicio << " no existe o fue eliminado.\n";
+            cout << "\n\t Nodo " << inicio << " no existe o fue eliminado.\n";
             return;
         }
 
         vector<bool> visitado(numVertices(), false);
-        cout << "\nRecorrido DFS desde " << inicio << " (" << nombres[inicio] << "):\n";
+        cout << "\n\t Recorrido DFS desde " << inicio << " (" << nombres[inicio] << "):\n";
 
         function<void(size_t)> dfsRec = [&](size_t u) {
             visitado[u] = true;
@@ -364,7 +364,7 @@ public:
     // Recorrido BFS 
     void BFS(size_t inicio) const {
         if (!existeNodo(inicio)) {
-            cout << "Nodo " << inicio << " no existe o fue eliminado.\n";
+            cout << "\n\t Nodo " << inicio << " no existe o fue eliminado.\n";
             return;
         }
 
@@ -380,7 +380,7 @@ public:
         cola[fin++] = inicio;
         visitado[inicio] = true;
 
-        cout << "\nRecorrido BFS desde " << inicio << " (" << nombres[inicio] << "):\n";
+        cout << "\n\t Recorrido BFS desde " << inicio << " (" << nombres[inicio] << "):\n";
 
         while (frente < fin) {
             size_t u = cola[frente++];

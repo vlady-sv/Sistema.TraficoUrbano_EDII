@@ -8,9 +8,8 @@
 #include "modificarCSV.h"
 using namespace std;
 
-//variables globales
-
-void iniciarPorDefecto(const string, HashRed&, vector<Arista>&, Grafo&);
+//Prototipos
+void iniciarPorDefecto(const string, const string, HashRed&, vector<Arista>&, Grafo&, HashVehiculos&, vector<Vehiculo>&);
 void red_Nodos_Hash(HashRed&, vector<Arista>&, Grafo&);
 void redArchivo();
 void redGrafo(Grafo&);
@@ -30,7 +29,7 @@ int main(){
     vector<Vehiculo> vehics;
     Grafo grafo(10, true);
 
-    iniciarPorDefecto("red.csv", hashRed, aristas, grafo);
+    iniciarPorDefecto("red.csv", "vehiculos.csv", hashRed, aristas, grafo, hashVh, vehics);
 
     int opc;
 
@@ -63,8 +62,8 @@ int main(){
 }
 
 /* Iniciar por defecto con una red cuando se abre el programa */
-void iniciarPorDefecto(const string nomArchivo, HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo){
-    csvRed(nomArchivo, hashRed, aristas);
+void iniciarPorDefecto(const string nomRed, const string nomVehics, HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo, HashVehiculos& hashVh, vector<Vehiculo>& vehics){
+    csvRed(nomRed, hashRed, aristas);
     //Inserción de los nodos en el grafo
     for (size_t i = 0; i < 10; i++) {
         Nodo* n = hashRed.buscar(i);
@@ -76,6 +75,8 @@ void iniciarPorDefecto(const string nomArchivo, HashRed& hashRed, vector<Arista>
     for (const auto& a : aristas) {
         grafo.agregarAristas(a.origen, a.destino, a.peso);
     }
+
+    csvVehiculos(nomVehics, hashVh, vehics);
 
     if(!verificarCRed()){
         crearContRed();
@@ -105,7 +106,7 @@ void red_Nodos_Hash(HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo){
                 bool saveAs;
                 nombreArchivoRed(archivo, saveAs, "cargar");
             
-                hashRed = HashRed(100);
+                hashRed = HashRed(10);
                 aristas.clear();
                 csvRed(archivo, hashRed, aristas);
                 //reiniciamos el grafo
@@ -216,7 +217,7 @@ void redGrafo(Grafo& grafo){
         switch(opc){
             case 1:{
                     string nombre;
-                    cout << u8"Nombre del nodo: ";
+                    cout << u8"\n\t Nombre del nodo: ";
                     cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
                     getline(cin, nombre);
                     grafo.altaNodo(nombre);
@@ -224,11 +225,11 @@ void redGrafo(Grafo& grafo){
                 break;
             case 2:{
                     int u, v; float w;
-                    cout << u8"Nodo origen (ID): "; 
+                    cout << u8"\n\t Nodo origen (ID): "; 
                     cin >> u;
-                    cout << u8"Nodo destino (ID): "; 
+                    cout << u8"\n\t Nodo destino (ID): "; 
                     cin >> v;
-                    cout << u8"Peso: "; 
+                    cout << u8"\n\t Peso: "; 
                     cin >> w;
                     if (!grafo.existeNodo(u) || !grafo.existeNodo(v)){
                         cout << u8"\n\t Error: uno o ambos nodos no existen.\n";
@@ -237,7 +238,7 @@ void redGrafo(Grafo& grafo){
                     }else if (grafo.existeAristas(u, v)){
                         cout << u8"\n\t Ya existe una arista de " << u << " a " << v << "\n";
                         char resp;
-                        cout << u8"\t ¿Reemplazar peso? (s/n): "; cin >> resp;
+                        cout << u8"\n\t ¿Reemplazar peso? (s/n): "; cin >> resp;
                         if (resp != 's' && resp != 'S') break;
                         grafo.eliminarAristas(u, v);  //borra la antigua
                     }
@@ -260,15 +261,15 @@ void redGrafo(Grafo& grafo){
                 break;
             case 4:{
                     int u, v;
-                    cout << u8"Nodo origen: "; 
+                    cout << u8"\n\t Nodo origen: "; 
                     cin >> u;
-                    cout << u8"Nodo destino: "; 
+                    cout << u8"\n\t Nodo destino: "; 
                     cin >> v;
                     if (!grafo.existeAristas(u, v)){
                         cout << u8"\n\t No existe arista de " << u << " -> " << v << "\n";
                     }else{
                         grafo.eliminarAristas(u, v);
-                        cout << u8"\t Arista " << u << " -> " << v << " eliminada correctamente.\n";
+                        cout << u8"\n\t Arista " << u << " -> " << v << " eliminada correctamente.\n";
                     }
                 }
                 break;
@@ -324,26 +325,26 @@ void recorridos(Grafo& grafo){
 
         switch(opc){
             case 1:{ 
-                int origen, destino;
-                cout << "\n\t Ingresa el origen: "; cin >> origen;
-                cout << "\n\t Ingresa el destino: "; cin >> destino;
-                if (!grafo.existeNodo(origen) || !grafo.existeNodo(destino)){
-                    cout << u8"Error: Nodo(s) no existen.\n";
-                    break;
-                }
-                vector<float> dist;
-                vector<int> parent;
-                //medir tiempo de ejecucion
-                using namespace std::chrono; //cambio porque clock() puede no estar detectando el tiempo con la CPU
-                auto inicio = high_resolution_clock::now();
-                
-                grafo.dijkstra(origen, dist, parent);
-                
-                auto fin = high_resolution_clock::now();
-                double tiempo = duration<double, std::micro>(fin - inicio).count();;
-                cout << "\n\t Tiempo de ejecución de Dijkstra: "<< tiempo << " segundos\n"; //aqui son microsegundos
-                //imprimir camino
-                grafo.imprimirCamino(origen, destino, parent, dist);
+                    int origen, destino;
+                    cout << "\n\t Ingresa el origen: "; cin >> origen;
+                    cout << "\n\t Ingresa el destino: "; cin >> destino;
+                    if (!grafo.existeNodo(origen) || !grafo.existeNodo(destino)){
+                        cout << u8"Error: Nodo(s) no existen.\n";
+                        break;
+                    }
+                    vector<float> dist;
+                    vector<int> parent;
+                    //medir tiempo de ejecucion
+                    using namespace std::chrono; //Uso de chrono ya que clock() no puede no detectando el tiempo con la CPU
+                    auto inicio = high_resolution_clock::now();
+                    
+                    grafo.dijkstra(origen, dist, parent);
+                    
+                    auto fin = high_resolution_clock::now();
+                    double tiempo = duration<double, std::micro>(fin - inicio).count();
+                    //imprimir camino
+                    if(grafo.imprimirCamino(origen, destino, parent, dist))
+                        cout << "\n\t Tiempo de ejecución de Dijkstra: "<< tiempo << " segundos\n"; //aqui son microsegundos
                 }
                 break;
             case 2:{
@@ -386,18 +387,36 @@ void vehiculos(Grafo& grafo,HashVehiculos& hashVh, vector<Vehiculo>& vehics){
     do{
         cout << "\n-----------------------------------------------";
         cout << u8"\n\t\t\t ===> Opciones de Vehículos <====";
-        cout << u8"\n\t [1] Opciones de Vehículos (Con archivos).";
-        cout << u8"\n\t [2] Opciones de Vehículos (Con Grafo).";
+        cout << u8"\n\t [1] Cargar archivo de vehículos.";
+        cout << u8"\n\t [2] Mostrar vehículos cargados actualmente.";
+        cout << u8"\n\t [3] Opciones de Vehículos (Con archivos).";
+        cout << u8"\n\t [4] Opciones de Vehículos (Con Grafo).";
         cout << u8"\n\t [0] Regresar al menú anterior.";
         cout << u8"\n\n\t Elige una opción: ";
         cin >> opc;
 
         switch(opc){
             case 1:{
-                vehicArchivo();
+                    string nomArchivo;
+                    nombreArchivoVehiculos(nomArchivo);
+                    hashVh = HashVehiculos(10);
+                    vehics.clear();
+                    csvVehiculos(nomArchivo, hashVh, vehics);
                 }
                 break;
             case 2:{
+                    cout << u8"\n\t Los vehículos cargados actualmente son: \n";
+                    for(const Vehiculo& v: vehics){ //Mostrar todos los vehiculos
+                    cout << "\n\t Id: " << v.id << " | Placa: " << v.placa << " | Tipo: " << v.tipo << " | Origen: " << v.origen << " | Destino: " 
+                         << v.destino << " | Hora de entrada: " << v.horaEntrada;
+                    }
+                }
+                break;
+            case 3:{
+                vehicArchivo();
+                }
+                break;
+            case 4:{
                 vehicGrafo(grafo, hashVh, vehics);
                 }
                 break;
@@ -472,7 +491,7 @@ void vehicGrafo(Grafo& grafo, HashVehiculos& hashVh, vector<Vehiculo>&vehics){
 
         switch(opc){
             case 1:{
-                    cout << u8"\n\t Los vehículos contenidos en el archivo son: ";
+                    cout << u8"\n\t Los vehículos contenidos en el archivo son: \n";
                     for(const Vehiculo& v: vehics){ //Mostrar todos los vehiculos
                     cout << "\n\t Id: " << v.id << " | Placa: " << v.placa << " | Tipo: " << v.tipo << " | Origen: " << v.origen << " | Destino: " 
                          << v.destino << " | Hora de entrada: " << v.horaEntrada;
@@ -480,23 +499,23 @@ void vehicGrafo(Grafo& grafo, HashVehiculos& hashVh, vector<Vehiculo>&vehics){
                     int idVh;
                     Vehiculo* v;
                     do{
-                        cout << u8"\n\t Ingresa el id del vehículo que quieres simular su movimiento: ";
+                        cout << u8"\n\n\t Ingresa el id del vehículo que quieres simular su movimiento: ";
                         cin >> idVh;
-                        Vehiculo* v = hashVh.buscar(idVh);
+                        v = hashVh.buscar(idVh);
                     }while(v == nullptr);
                     
                     //Llamar al método de Dijkstra con el grafo que se encuentre cargado
                     vector<float> dist;
                     vector<int> parent;
                     //medir tiempo de ejecucion
-                    clock_t inicio = clock();
+                    using namespace std::chrono; //Uso de chrono ya que clock() no puede no detectando el tiempo con la CPU
+                    auto inicio = high_resolution_clock::now();
                     grafo.dijkstra(v->origen, dist, parent);
-                    clock_t fin = clock();
-                    double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
-                    cout << u8"\n\t Tiempo de movimiento del automóvil: "<< tiempo << " segundos\n";
-                    //imprimir camino
-                    cout << u8"\n\t El camino seguido por el vehículo fue: "; 
-                    grafo.imprimirCamino(v->origen, v->destino, parent, dist);
+                    auto fin = high_resolution_clock::now();
+                    double tiempo = duration<double, std::micro>(fin - inicio).count();
+                    //imprimir camino 
+                    if(grafo.imprimirCamino(v->origen, v->destino, parent, dist))
+                        cout << u8"\n\t Tiempo de movimiento del automóvil: "<< tiempo << " segundos\n";
                 }
                 break;
             case 2:{
@@ -548,7 +567,7 @@ void nombreArchivoRed(string &nomArchivo, bool& saveAs, const string accion){
     }
     int cont = contRed(false);
 
-    cout << "\n\t Archivos de Redes de Nodos: ";
+    cout << "\n\t Archivos de Redes de Nodos: \n";
     for(int i=1; i<=cont; i++){
         if(i==1){
             cout << "\n\t [" << i << "] red.csv";
@@ -591,7 +610,7 @@ void nombreArchivoVehiculos(string &nomArchivo){
     }
     int cont = contVehiculos(false);
 
-    cout << u8"\n\t Archivos de Vehículos: ";
+    cout << u8"\n\t Archivos de Vehículos: \n";
     for(int i=1; i<=cont; i++){
         if(i==1){
             cout << "\n\t [" << i << "] vehiculos.csv";
@@ -602,7 +621,7 @@ void nombreArchivoVehiculos(string &nomArchivo){
 
     int opc;
     do{
-        cout << u8"\n\t Elija un archivo para trabajar con él: ";
+        cout << u8"\n\n\t Elija un archivo para trabajar con él: ";
         cin >> opc;
     }while(opc <= 0 && opc >= cont);
 
