@@ -178,6 +178,10 @@ class HashVehiculos{
             if(numElementos == capacidad) return true;
             return false;
         }
+
+        size_t getNumElementos(){
+            return numElementos;
+        }
 };
 
 #endif

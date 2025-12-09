@@ -14,7 +14,9 @@ void redArchivo();
 void redGrafo(Grafo&);
 void mostrar_Grafo(Grafo&);
 void recorridos(Grafo&);
-void vehiculos();
+void vehiculos(Grafo&, HashVehiculos&, vector<Vehiculo>&);
+void vehicArchivo();
+void vehicGrafo(Grafo&, HashVehiculos&, vector<Vehiculo>&);
 void nombreArchivoRed(string&, bool&, const string);
 void nombreArchivoVehiculos(string&);
 
@@ -22,6 +24,8 @@ int main(){
     SetConsoleOutputCP(CP_UTF8);
     HashRed hashRed(10);
     vector<Arista> aristas;
+    HashVehiculos hashVh(10);
+    vector<Vehiculo> vehics;
     Grafo grafo(10, true);
 
     iniciarPorDefecto("red.csv", hashRed, aristas, grafo);
@@ -46,7 +50,7 @@ int main(){
                 break;
             case 3: recorridos(grafo);
                 break;
-            case 4: vehiculos();
+            case 4: vehiculos(grafo, hashVh, vehics);
                 break;
             case 0: cout << "\n\t Saliendo del programa....";
                 break;
@@ -371,12 +375,42 @@ void recorridos(Grafo& grafo){
 }
 
 /* Opciones para el manejo de archivos de vehiculos*/
-void vehiculos(){
+void vehiculos(Grafo& grafo,HashVehiculos& hashVh, vector<Vehiculo>& vehics){
     int opc;
 
     do{
         cout << "\n-----------------------------------------------";
         cout << u8"\n\t\t\t ===> Opciones de Vehículos <====";
+        cout << u8"\n\t [1] Opciones de Vehículos (Con archivos).";
+        cout << u8"\n\t [2] Opciones de Vehículos (Con Grafo).";
+        cout << u8"\n\t [0] Regresar al menú anterior.";
+        cout << u8"\n\n\t Elige una opción: ";
+        cin >> opc;
+
+        switch(opc){
+            case 1:{
+                vehicArchivo();
+                }
+                break;
+            case 2:{
+                vehicGrafo(grafo, hashVh, vehics);
+                }
+                break;
+            case 0: cout << "\n\t Volver al menú anterior....";
+                break;
+            default: cout << u8"\n\n\t Opción invalida.\n";
+                break;
+        }
+    }while(opc != 0);
+}
+
+/* Opciones de vehiculos usando archivos, crear nuevos archicos, modificar, buscar, añadir y eliminar */
+void vehicArchivo(){
+    int opc;
+
+    do{
+        cout << "\n-----------------------------------------------";
+        cout << u8"\n\t\t\t ===> Opciones de Vehículos (Desde archivo) <====";
         cout << u8"\n\t [1] Alta de Vehículo.";
         cout << u8"\n\t [2] Buscar Vehículo.";
         cout << u8"\n\t [3] Baja de Vehículo.";
@@ -408,13 +442,99 @@ void vehiculos(){
                 crearNuevoVehiculos();
                 }
                 break;
-            case 0: cout << "\n\t Saliendo del programa....";
+            case 0: cout << "\n\t Volver al menú anterior....";
                 break;
             default: cout << u8"\n\n\t Opción invalida.\n";
                 break;
         }
     }while(opc != 0);
 }
+
+/* Opciones de vehiculos usando el grafo, mover con Dijkstra, eliminar y agregar vehiculos*/
+void vehicGrafo(Grafo& grafo, HashVehiculos& hashVh, vector<Vehiculo>&vehics){
+    int opc;
+
+    do{
+        cout << "\n-----------------------------------------------";
+        cout << u8"\n\t\t\t ===> Opciones de Vehículos (Desde grafo) <====";
+        cout << u8"\n\t [1] Aplicar Dijkstra a un Vehículo.";
+        cout << u8"\n\t [2] Alta de Vehículo.";
+        cout << u8"\n\t [3] Buscar Vehículo.";
+        cout << u8"\n\t [4] Baja de Vehículo.";
+        cout << u8"\n\t [0] Regresar al menú anterior.";
+        cout << u8"\n\n\t Elige una opción: ";
+        cin >> opc;
+
+        switch(opc){
+            case 1:{
+                    cout << u8"\n\t Los vehículos contenidos en el archivo son: ";
+                    for(const Vehiculo& v: vehics){ //Mostrar todos los vehiculos
+                    cout << "\n\t Id: " << v.id << " | Placa: " << v.placa << " | Tipo: " << v.tipo << " | Origen: " << v.origen << " | Destino: " 
+                         << v.destino << " | Hora de entrada: " << v.horaEntrada;
+                    }
+                    int idVh;
+                    Vehiculo* v;
+                    do{
+                        cout << u8"\n\t Ingresa el id del vehículo que quieres simular su movimiento: ";
+                        cin >> idVh;
+                        Vehiculo* v = hashVh.buscar(idVh);
+                    }while(v == nullptr);
+                    
+                    //Llamar al método de Dijkstra con el grafo que se encuentre cargado
+                    vector<float> dist;
+                    vector<int> parent;
+                    //medir tiempo de ejecucion
+                    clock_t inicio = clock();
+                    grafo.dijkstra(v->origen, dist, parent);
+                    clock_t fin = clock();
+                    double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
+                    cout << u8"\n\t Tiempo de movimiento del automóvil: "<< tiempo << " segundos\n";
+                    //imprimir camino
+                    cout << u8"\n\t El camino seguido por el vehículo fue: "; 
+                    grafo.imprimirCamino(v->origen, v->destino, parent, dist);
+                }
+                break;
+            case 2:{
+                    Vehiculo v;
+                    v.id = (int)hashVh.getNumElementos();
+                    llenarVehiculos(v, vehics);
+                    hashVh.insertar(v);
+                    vehics.push_back(v);
+                    cout << u8"\n\t El vehículo fue insertado exitosamente.";
+                }
+                break;
+            case 3:{
+                    int idVh;
+                    cout << u8"\n\t Ingresa el Id del vehículo: ";
+                    cin >> idVh;
+                    Vehiculo* v = hashVh.buscar(idVh);
+                    if(v == nullptr){
+                        cout << u8"\n\t El vehículo solicitado no ha sido registrado, o no existe.";
+                    }
+                    cout << u8"\n\t Vehículo:\n";
+                    cout << u8"\n\t Id: " << v->id << " | Placa: " << v->placa << " | Tipo: " << v->tipo;
+                    cout << " | Origen: " << v->origen << " | Destino: " << v->destino << " | Hora de Entrada: " << v->horaEntrada; 
+                }
+                break;
+            case 4:{
+                    int idVh;
+                    cout << u8"\n\t Ingresa el Id del vehículo: ";
+                    cin >> idVh;
+                    bool eliminado = hashVh.eliminar(idVh);
+                    if(!eliminado){
+                        cout << u8"\n\t El vehículo solicitado no ha sido registrado, o no existe.";
+                    }
+                    cout << u8"\n\t El vehículo fue eliminado exitosamente.";
+                }
+                break;
+            case 0: cout << "\n\t Volver al menú anterior....";
+                break;
+            default: cout << u8"\n\n\t Opción invalida.\n";
+                break;
+        }
+    }while(opc != 0);
+}
+
 
 /* Funcion auxiliar para obtener el nombre del archivo de la red */
 void nombreArchivoRed(string &nomArchivo, bool& saveAs, const string accion){
