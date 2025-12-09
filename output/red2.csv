@@ -1,8 +1,0 @@
-#NODOS
-#N;idNodo;nombre
-N;0;Mi_Casa
-N;1;Tu_casa
-#ARISTAS (dirigidas)
-#E;origen;destino;peso
-E;0;1;2.1
-E;1;0;3
