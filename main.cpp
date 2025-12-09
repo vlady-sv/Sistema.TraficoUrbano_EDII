@@ -23,11 +23,11 @@ void nombreArchivoVehiculos(string&);
 
 int main(){
     SetConsoleOutputCP(CP_UTF8);
-    HashRed hashRed(10);
+    HashRed hashRed(12);
     vector<Arista> aristas;
-    HashVehiculos hashVh(10);
+    HashVehiculos hashVh(12);
     vector<Vehiculo> vehics;
-    Grafo grafo(10, true);
+    Grafo grafo(12, true);
 
     iniciarPorDefecto("red.csv", "vehiculos.csv", hashRed, aristas, grafo, hashVh, vehics);
 
@@ -65,7 +65,7 @@ int main(){
 void iniciarPorDefecto(const string nomRed, const string nomVehics, HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo, HashVehiculos& hashVh, vector<Vehiculo>& vehics){
     csvRed(nomRed, hashRed, aristas);
     //Inserción de los nodos en el grafo
-    for (size_t i = 0; i < 10; i++) {
+    for (size_t i = 0; i < 12; i++) {
         Nodo* n = hashRed.buscar(i);
         if (n != nullptr) {
             grafo.altaNodo(n->id, n->nombre);
@@ -106,14 +106,14 @@ void red_Nodos_Hash(HashRed& hashRed, vector<Arista>& aristas, Grafo& grafo){
                 bool saveAs;
                 nombreArchivoRed(archivo, saveAs, "cargar");
             
-                hashRed = HashRed(10);
+                hashRed = HashRed(12);
                 aristas.clear();
                 csvRed(archivo, hashRed, aristas);
                 //reiniciamos el grafo
-                grafo = Grafo(10, true);
+                grafo = Grafo(12, true);
             
                 //insertamos los nodos en el grafo
-                for (size_t i = 0; i < 10; i++) {
+                for (size_t i = 0; i < 12; i++) {
                     Nodo* n = hashRed.buscar(i);
                     if (n != nullptr) {
                         grafo.altaNodo(n->id, n->nombre);
@@ -399,7 +399,7 @@ void vehiculos(Grafo& grafo,HashVehiculos& hashVh, vector<Vehiculo>& vehics){
             case 1:{
                     string nomArchivo;
                     nombreArchivoVehiculos(nomArchivo);
-                    hashVh = HashVehiculos(10);
+                    hashVh = HashVehiculos(12);
                     vehics.clear();
                     csvVehiculos(nomArchivo, hashVh, vehics);
                 }

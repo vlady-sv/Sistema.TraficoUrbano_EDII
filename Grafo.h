@@ -343,11 +343,11 @@ public:
         }
 
         vector<bool> visitado(numVertices(), false);
-        cout << "\n\t Recorrido DFS desde " << inicio << " (" << nombres[inicio] << "):\n";
+        cout << "\n\t Recorrido DFS desde " << inicio << " (" << nombres[inicio] << "):\n\n";
 
         function<void(size_t)> dfsRec = [&](size_t u) {
             visitado[u] = true;
-            cout << u << " (" << nombres[u] << ") ";
+            cout << "-> " << u << "(" << nombres[u] << ") ";
 
             for (Aristas* a = adj[u]; a; a = a->sig) {
                 size_t v = a->nodoDestino;
@@ -380,11 +380,11 @@ public:
         cola[fin++] = inicio;
         visitado[inicio] = true;
 
-        cout << "\n\t Recorrido BFS desde " << inicio << " (" << nombres[inicio] << "):\n";
+        cout << "\n\t Recorrido BFS desde " << inicio << " (" << nombres[inicio] << "):\n\n";
 
         while (frente < fin) {
             size_t u = cola[frente++];
-            cout << u << " (" << nombres[u] << ") ";
+            cout <<  "-> " << u << "(" << nombres[u] << ") ";
 
             for (Aristas* a = adj[u]; a; a = a->sig) {
                 size_t v = a->nodoDestino;
