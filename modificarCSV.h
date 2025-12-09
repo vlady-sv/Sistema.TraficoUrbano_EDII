@@ -22,22 +22,22 @@ void distribuirRed(const string nomArchivo, bool nueva, bool saveAs, string acci
         if(objeto == "nodos"){ //Tambien separamos segun el objeto
             agregarNodos(nNodos, nueva); //Dependiendo de la accion y el objeto solo se manda lo necesario
             if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
-            guardarRed(nNodos, aristas);
+            else guardarRed(nNodos, aristas);
         }else if(objeto == "aristas"){
             agregarAristas(nNodos, aristas);
             if(!nueva || !saveAs)  modificarRed(nomArchivo, nNodos, aristas);
-            guardarRed(nNodos, aristas);
+            else guardarRed(nNodos, aristas);
 
         }
     }else if(accion == "eliminar"){
         if(objeto == "nodos"){
             eliminarNodos(nNodos, aristas);
             if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
-            guardarRed(nNodos, aristas);
+            else guardarRed(nNodos, aristas);
         }else if(objeto == "aristas"){
             eliminarAristas(aristas);
             if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
-            guardarRed(nNodos, aristas);
+            else guardarRed(nNodos, aristas);
         }
     }
 }
@@ -73,13 +73,13 @@ void agregarNodos(HashRed& nNodos, bool nueva){
         cout << "\n\t Los nodos actuales en el archivo son: ";
         for(const auto& n: nNodos.getNodos()){
             lastId = n.id;
-            cout << "\n\tId: " << n.id << " | Nombre: " << n.nombre;
+            cout << "\n\t Id: " << n.id << " | Nombre: " << n.nombre;
         }
     }
 
     //Preguntar cuántos nodos se quieren agregar
     int numNodos;
-    cout << u8"\n\t Cuántos nodos deseas agregar: ";
+    cout << u8"\n\n\t Cuántos nodos deseas agregar: ";
     cin >> numNodos;
     
     //Preguntamos el nombre de cada nodo nuevo a agregar
@@ -87,7 +87,7 @@ void agregarNodos(HashRed& nNodos, bool nueva){
         Nodo n;
         n.id = lastId;
 
-        cout << "\n\t Dame el nombre del nodo " << lastId << ": ";
+        cout << "\n\t Dame el nombre del nodo " << lastId+1 << ": ";
         cin >> n.nombre;
 
         nNodos.insertar(n);
@@ -542,6 +542,8 @@ void buscarVehiculos(const string nomArchivo){
     do{
         cout << "\n\t [1] Buscar por Id";
         cout << "\n\t [2] Buscar por placa";
+
+        cout << u8"\n\n\t Cómo quieres buscar el vehículo: ";
         cin >> opc;
 
         switch(opc){

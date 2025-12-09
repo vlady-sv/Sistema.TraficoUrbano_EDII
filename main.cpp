@@ -578,7 +578,10 @@ void nombreArchivoRed(string &nomArchivo, bool& saveAs, const string accion){
 
     int opc;
     do{
-        cout << u8"\n\n\t Qué archivo desea " << accion << ": ";
+        if(accion == "cargar")
+            cout << u8"\n\n\t Qué archivo desea " << accion << ": ";
+        else
+            cout << u8"\n\n\t En qué archivo desea " << accion << ": ";
         cin >> opc;
     }while(opc <= 0 && opc >= cont);
 
