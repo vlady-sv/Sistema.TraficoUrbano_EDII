@@ -99,6 +99,10 @@ class HashRed{
             return false;
         }
 
+        size_t getCap(){
+            return capacidad;
+        }
+
 };
 
 /* MANEJO DE TABLA HASH DE VEHICULOS */

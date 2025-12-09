@@ -21,22 +21,22 @@ void distribuirRed(const string nomArchivo, bool nueva, bool saveAs, string acci
     if(accion == "agregar"){
         if(objeto == "nodos"){ //Tambien separamos segun el objeto
             agregarNodos(nNodos, nueva); //Dependiendo de la accion y el objeto solo se manda lo necesario
-            if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
+            if(!nueva && !saveAs) modificarRed(nomArchivo, nNodos, aristas);
             else guardarRed(nNodos, aristas);
         }else if(objeto == "aristas"){
             agregarAristas(nNodos, aristas);
-            if(!nueva || !saveAs)  modificarRed(nomArchivo, nNodos, aristas);
+            if(!nueva && !saveAs)  modificarRed(nomArchivo, nNodos, aristas);
             else guardarRed(nNodos, aristas);
 
         }
     }else if(accion == "eliminar"){
         if(objeto == "nodos"){
             eliminarNodos(nNodos, aristas);
-            if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
+            if(!nueva && !saveAs) modificarRed(nomArchivo, nNodos, aristas);
             else guardarRed(nNodos, aristas);
         }else if(objeto == "aristas"){
             eliminarAristas(aristas);
-            if(!nueva || !saveAs) modificarRed(nomArchivo, nNodos, aristas);
+            if(!nueva && !saveAs) modificarRed(nomArchivo, nNodos, aristas);
             else guardarRed(nNodos, aristas);
         }
     }
@@ -67,13 +67,18 @@ bool verificarValor(int cont, int opc){
 //Preguntar por los nodos que se quieren agregar
 
 void agregarNodos(HashRed& nNodos, bool nueva){
+    if(nNodos.isFull()){
+        cout << u8"\n\t Lo sentimos la tabla Hash a alcando el límite de su capacidad.";
+        return;
+    }
     int lastId = 0;
+    vector<bool> usado(nNodos.getCap(), false);
     if(!nueva){
         //Mostramos al usuario los nodos que hay en el archivo
         cout << "\n\t Los nodos actuales en el archivo son: ";
         for(const auto& n: nNodos.getNodos()){
-            lastId = n.id;
             cout << "\n\t Id: " << n.id << " | Nombre: " << n.nombre;
+            if(n.id >= 0) usado[n.id] = true;
         }
     }
 
@@ -84,14 +89,27 @@ void agregarNodos(HashRed& nNodos, bool nueva){
     
     //Preguntamos el nombre de cada nodo nuevo a agregar
     for(int i=0; i<numNodos; i++){
+        int id;
         Nodo n;
-        n.id = lastId;
+        if(!nueva){
+            for(size_t j=0; j<usado.size(); j++){
+                if(usado[j] == false){  
+                    n.id = j;
+                    id = n.id;
+                    usado[j] = true;
+                    break;
+                }
+            }
+        }else{
+            n.id = lastId;
+            id = lastId;
+            lastId++;
+        }
 
-        cout << "\n\t Dame el nombre del nodo " << lastId+1 << ": ";
+        cout << "\n\t Dame el nombre del nodo " << id << ": ";
         cin >> n.nombre;
 
         nNodos.insertar(n);
-        lastId++;
     }
 }
 
@@ -177,18 +195,28 @@ void eliminarNodos(HashRed& nNodos, vector<Arista>& aristas){
 
 void eliminarAristas(vector<Arista>& aristas){
     char resp;
-    int origenEliminar, destinoEliminar, pesoEliminar, aristaEliminar, nAristas = 1;
+    int origenEliminar, destinoEliminar, aristaEliminar, origenMenor = 1e9, origenMayor = 0;
+    float pesoEliminar;
+    bool continuar;
     do{
         cout << "\n\t Las aristas actuales en el archivo son: ";
         for(const auto& a: aristas){
             cout << "\n\t Origen: " << a.origen << " | Destino: " << a.destino << " | Peso: " << a.peso;
-            nAristas++;
+            if(a.origen < origenMenor) origenMenor = a.origen;
+            if(a.origen > origenMayor) origenMayor = a.origen;
         }
 
         do{
-            cout << "\n\t Esctiba el origen de la arista que desea eliminar: ";
+            continuar = true;
+            cout << "\n\t Escriba el origen de la arista que desea eliminar: ";
             cin >> origenEliminar;
-        }while(origenEliminar < 1 && origenEliminar > nAristas);
+
+            if(!(origenEliminar < origenMenor || origenEliminar > origenMayor)){
+                for(const auto& a: aristas){
+                    if(a.origen == origenEliminar) continuar = false;
+                }
+            }
+        }while(continuar);
 
         int cont = 1;
         for(const auto& a: aristas){
@@ -201,13 +229,13 @@ void eliminarAristas(vector<Arista>& aristas){
         do{
             cout << "\n\n\t Elija la arista que desea eliminar: ";
             cin >> aristaEliminar;
-        }while(aristaEliminar < 1 && aristaEliminar > cont);
+        }while(aristaEliminar < 1 || aristaEliminar >= cont);
 
         //Buscamos la arista apoyandonos de cont
         cont = 1;
         for(const auto& a: aristas){
             if(a.origen == origenEliminar){
-                if(cont == aristaEliminar){ //Mostramos solo las aristas que tengan el origen seleccionado por el usuario
+                if(cont == aristaEliminar){
                     destinoEliminar = a.destino;
                     pesoEliminar = a.peso;
                     break;
@@ -217,7 +245,6 @@ void eliminarAristas(vector<Arista>& aristas){
         }
         
 
-        //Se busca la aristas que tuvieran conexión con el nodo y también se eliminan
         for(size_t i=0; i<aristas.size(); ++i){
             if(aristas[i].origen == origenEliminar && aristas[i].destino == destinoEliminar && aristas[i].peso == pesoEliminar){
                 aristas.erase(aristas.begin() + i);
@@ -300,6 +327,13 @@ void guardarRed(HashRed& nNodos, vector <Arista>& aristas){
     if(!red){
         cout << u8"\n\t El archivo no se abrió correctamente.";
         return;
+    }
+
+    //Actualizar id de los Nodos para compactar el archivo
+    int i=0;
+    for(Nodo& n: nNodos.getNodos()){
+        n.id = i;
+        i++;
     }
 
     /* GUARDAR LOS NODOS EN EL CSV */
@@ -462,7 +496,7 @@ void agregarVehiculos(const string nomArchivo){
 
     //Ingresar los nuevos vehiculos al final del CSV
     for(const Vehiculo& v: nuevosVehiculos){
-        archVh << "V;" << v.id << ";" << v.placa << ";" << v.tipo << ";" << v.origen << ";" << v.destino << ";" << v.horaEntrada << "\n";
+        archVh << "\nV;" << v.id << ";" << v.placa << ";" << v.tipo << ";" << v.origen << ";" << v.destino << ";" << v.horaEntrada << "\n";
     }
 
     archVh.close();
@@ -493,9 +527,35 @@ void eliminarVehiculos(const string nomArchivo){
             cout << u8"\n\t Qué vehículo desea eliminar: ";
             cin >> vEliminar;
 
-            if(vEliminar < 1 || vEliminar > i) cout << u8"\n\t Error. Opción fuera de rango."; //Verificar que este dentro del rango de vehiculos que le mostramos
-        }while(vEliminar < 1 && vEliminar > i);
+            if(vEliminar < 1 || vEliminar >= i) cout << u8"\n\t Error. Opción fuera de rango."; //Verificar que este dentro del rango de vehiculos que le mostramos
+        }while(vEliminar < 1 || vEliminar >=i);
 
+        int idx = vEliminar - 1;
+        vehiculos.erase(vehiculos.begin() + idx);
+
+        fstream archVh;
+        archVh.open(nomArchivo, ios::out|ios::trunc);
+        if(!archVh){
+            cout << u8"\n\t El archivo no se abrió correctamente.";
+            return;
+        }
+
+        //Actualizar los id de todos los vehiculos restantes para evitar dejar huecos
+        for(size_t i=0; i<vehiculos.size(); ++i){
+            vehiculos[i].id = i;
+        }
+
+        /* GUARDAR LOS VEHICULOS EN EL CSV */
+        //Encabezados
+        archVh << "#V;id;placa;tipo;origen;destino;horaEntrada\n";
+
+        //Vehiculos
+        for(const Vehiculo& v: vehiculos){
+            archVh << "V;" << v.id << ";" << v.placa << ";" << v.tipo << ";" << v.origen << ";" << v.destino << ";" << v.horaEntrada << "\n";
+        }
+        
+        archVh.close();
+        cout << u8"\n\t Los vehículos fueron eliminados correctamente, y los Id fueron actualizados.";
          
         do{
             cout << "\n\t Desea eliminar otro vehículo?  [S/N]: ";
@@ -503,30 +563,6 @@ void eliminarVehiculos(const string nomArchivo){
             cin >> resp;
         }while(resp != 's' && resp != 'S' && resp != 'n' && resp != 'N');
     }while(resp == 's' || resp == 'S');
-
-    fstream archVh;
-    archVh.open(nomArchivo, ios::out|ios::trunc);
-    if(!archVh){
-        cout << u8"\n\t El archivo no se abrió correctamente.";
-        return;
-    }
-
-    //Actualizar los id de todos los vehiculos restantes para evitar dejar huecos
-    for(size_t i=0; i<vehiculos.size(); ++i){
-        vehiculos[i].id = i;
-    }
-
-    /* GUARDAR LOS VEHICULOS EN EL CSV */
-    //Encabezados
-    archVh << "#V;id;placa;tipo;origen;destino;horaEntrada\n";
-
-    //Vehiculos
-    for(const Vehiculo& v: vehiculos){
-        archVh << "V;" << v.id << ";" << v.placa << ";" << v.tipo << ";" << v.origen << ";" << v.destino << ";" << v.horaEntrada << "\n";
-    }
-    
-    archVh.close();
-    cout << u8"\n\t Los vehículos fueron eliminados correctamente, y los Id fueron actualizados.";
 }
 
 void buscarVehiculos(const string nomArchivo){
