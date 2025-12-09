@@ -2,6 +2,8 @@
 #define MAIN
 #include <windows.h>
 #include <ctime>
+#include <limits>
+#include <chrono>
 #include "Grafo.h"
 #include "modificarCSV.h"
 using namespace std;
@@ -211,7 +213,7 @@ void redGrafo(Grafo& grafo){
             case 1:{
                     string nombre;
                     cout << u8"Nombre del nodo: ";
-                    cin.ignore();
+                    cin.ignore(numeric_limits<std::streamsize>::max(), '\n');
                     getline(cin, nombre);
                     grafo.altaNodo(nombre);
                 }
@@ -328,11 +330,14 @@ void recorridos(Grafo& grafo){
                 vector<float> dist;
                 vector<int> parent;
                 //medir tiempo de ejecucion
-                clock_t inicio = clock();
+                using namespace std::chrono; //cambio porque clock() puede no estar detectando el tiempo con la CPU
+                auto inicio = high_resolution_clock::now();
+                
                 grafo.dijkstra(origen, dist, parent);
-                clock_t fin = clock();
-                double tiempo = double(fin - inicio) / CLOCKS_PER_SEC;
-                cout << "\n\t Tiempo de ejecución de Dijkstra: "<< tiempo << " segundos\n";
+                
+                auto fin = high_resolution_clock::now();
+                double tiempo = duration<double, std::micro>(fin - inicio).count();;
+                cout << "\n\t Tiempo de ejecución de Dijkstra: "<< tiempo << " segundos\n"; //aqui son microsegundos
                 //imprimir camino
                 grafo.imprimirCamino(origen, destino, parent, dist);
                 }
